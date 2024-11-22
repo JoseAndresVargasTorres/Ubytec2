@@ -1,0 +1,6 @@
+@UbyApi_HostAddress = http://localhost:5037
+
+GET {{UbyApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

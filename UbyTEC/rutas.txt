@@ -1,0 +1,167 @@
+# Listado completo de rutas de API
+Base URL: https://ubyapi-1016717342490.us-central1.run.app
+
+## Administrador
+- GET /api/Administrador
+- POST /api/Administrador
+- GET /api/Administrador/{cedula}
+- PUT /api/Administrador/{cedula}
+- DELETE /api/Administrador/{cedula}
+- GET /api/Administrador/{Password}/{Usuario}
+
+## Cliente
+- GET /api/Cliente
+- POST /api/Cliente
+- GET /api/Cliente/{cedula}
+- PUT /api/Cliente/{cedula}
+- DELETE /api/Cliente/{cedula}
+- GET /api/Cliente/{Password}/{Usuario}
+
+## ComercioAfiliado
+- GET /api/ComercioAfiliado
+- POST /api/ComercioAfiliado
+- GET /api/ComercioAfiliado/{id}
+- PUT /api/ComercioAfiliado/{id}
+- DELETE /api/ComercioAfiliado/{id}
+
+## DireccionAdministrador
+- GET /api/DireccionAdministrador
+- POST /api/DireccionAdministrador
+- GET /api/DireccionAdministrador/{id_Admin}
+- PUT /api/DireccionAdministrador/{id_Admin}
+- DELETE /api/DireccionAdministrador/{id_Admin}
+
+## DireccionCliente
+- GET /api/DireccionCliente
+- POST /api/DireccionCliente
+- GET /api/DireccionCliente/{id}
+- PUT /api/DireccionCliente/{id}
+- DELETE /api/DireccionCliente/{id}
+
+## DireccionComercio
+- GET /api/DireccionComercio
+- POST /api/DireccionComercio
+- GET /api/DireccionComercio/{id}
+- PUT /api/DireccionComercio/{id}
+- DELETE /api/DireccionComercio/{id}
+
+## DireccionPedido
+- GET /api/DireccionPedido
+- POST /api/DireccionPedido
+- GET /api/DireccionPedido/{id}
+- PUT /api/DireccionPedido/{id}
+- DELETE /api/DireccionPedido/{id}
+
+## DireccionRepartidor
+- GET /api/DireccionRepartidor
+- POST /api/DireccionRepartidor
+- GET /api/DireccionRepartidor/{id}
+- PUT /api/DireccionRepartidor/{id}
+- DELETE /api/DireccionRepartidor/{id}
+
+## Pedido
+- GET /api/Pedido
+- POST /api/Pedido
+- GET /api/Pedido/{id}
+- PUT /api/Pedido/{id}
+- DELETE /api/Pedido/{id}
+- PUT /api/Pedido/AsignaRepartidor/{num_pedido}
+
+## PedidosCliente
+- GET /api/PedidosCliente
+- POST /api/PedidosCliente
+- GET /api/PedidosCliente/{id}
+- PUT /api/PedidosCliente/{id}
+- DELETE /api/PedidosCliente/{id}
+
+## PedidosClienteControllerSQL
+- GET /api/PedidosClienteControllerSQL
+- POST /api/PedidosClienteControllerSQL
+- GET /api/PedidosClienteControllerSQL/{id}
+- PUT /api/PedidosClienteControllerSQL/{id}
+- DELETE /api/PedidosClienteControllerSQL/{id}
+
+## Producto
+- GET /api/Producto
+- POST /api/Producto
+- GET /api/Producto/{id}
+- PUT /api/Producto/{id}
+- DELETE /api/Producto/{id}
+
+## ProductosComercio
+- GET /api/ProductosComercio
+- POST /api/ProductosComercio
+- GET /api/ProductosComercio/{id}
+- PUT /api/ProductosComercio/{id}
+- DELETE /api/ProductosComercio/{id}
+
+## ProductosPedidos
+- GET /api/ProductosPedidos
+- POST /api/ProductosPedidos
+- GET /api/ProductosPedidos/{num_pedido}
+- PUT /api/ProductosPedidos/{id}
+- DELETE /api/ProductosPedidos/{id}
+
+## Repartidor
+- GET /api/Repartidor
+- POST /api/Repartidor
+- GET /api/Repartidor/{id}
+- PUT /api/Repartidor/{id}
+- DELETE /api/Repartidor/{id}
+- GET /api/Repartidor/{Password}/{Usuario}
+
+## TarjetaCredito
+- GET /api/TarjetaCredito
+- POST /api/TarjetaCredito
+- GET /api/TarjetaCredito/{id}
+- PUT /api/TarjetaCredito/{id}
+- DELETE /api/TarjetaCredito/{id}
+
+## TelefonoAdmin
+- GET /api/TelefonoAdmin
+- POST /api/TelefonoAdmin
+- GET /api/TelefonoAdmin/{id}
+- PUT /api/TelefonoAdmin/{id}
+- DELETE /api/TelefonoAdmin/{id}
+
+## TelefonoCliente
+- GET /api/TelefonoCliente
+- POST /api/TelefonoCliente
+- GET /api/TelefonoCliente/{id}
+- PUT /api/TelefonoCliente/{id}
+- DELETE /api/TelefonoCliente/{id}
+
+## TelefonoComercio
+- GET /api/TelefonoComercio
+- POST /api/TelefonoComercio
+- GET /api/TelefonoComercio/{id}
+- PUT /api/TelefonoComercio/{id}
+- DELETE /api/TelefonoComercio/{id}
+
+## TelefonoRepartidor
+- GET /api/TelefonoRepartidor
+- POST /api/TelefonoRepartidor
+- GET /api/TelefonoRepartidor/{id}
+- PUT /api/TelefonoRepartidor/{id}
+- DELETE /api/TelefonoRepartidor/{id}
+
+## TipoComercio
+- GET /api/TipoComercio
+- POST /api/TipoComercio
+- GET /api/TipoComercio/{id}
+- PUT /api/TipoComercio/{id}
+- DELETE /api/TipoComercio/{id}
+
+## ValidacionComercio
+- GET /api/ValidacionComercio
+- POST /api/ValidacionComercio
+- GET /api/ValidacionComercio/{id}
+- PUT /api/ValidacionComercio/{id}
+- DELETE /api/ValidacionComercio/{id}
+
+## ValidacionComercioControllerSQL
+- GET /api/ValidacionComercioControllerSQL
+- POST /api/ValidacionComercioControllerSQL
+- GET /api/ValidacionComercioControllerSQL/{id}
+- PUT /api/ValidacionComercioControllerSQL/{id}
+- DELETE /api/ValidacionComercioControllerSQL/{id}

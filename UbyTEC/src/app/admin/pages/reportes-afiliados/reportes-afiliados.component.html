@@ -1,0 +1,49 @@
+<header>
+  <app-header-admin></app-header-admin>
+</header>
+
+<div class="report-container">
+  <header>
+    <h1>UbyTec</h1>
+    <h2>Reporte Consolidado de Ventas</h2>
+  </header>
+
+  <!-- <div class="controls">
+    <label>
+      <input type="checkbox" [(ngModel)]="useMockData" (change)="toggleDataSource()">
+      Usar datos de prueba
+    </label>
+  </div> -->
+
+  <table class="report-table">
+    <thead>
+      <tr>
+        <th>Afiliado</th>
+        <th>Compras</th>
+        <th>Monto Total</th>
+        <th>Monto Servicio</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let venta of reporteVentas">
+        <td>{{venta.afiliado}}</td>
+        <td class="number">{{venta.compras}}</td>
+        <td class="number">{{venta.montoTotal | number:'1.2-2'}}</td>
+        <td class="number">{{venta.montoServicio | number:'1.2-2'}}</td>
+      </tr>
+      <tr class="total-row">
+        <td>Total</td>
+        <td class="number">{{calculateTotals().totalCompras}}</td>
+        <td class="number">{{calculateTotals().totalMonto | number:'1.2-2'}}</td>
+        <td class="number">{{calculateTotals().totalServicio | number:'1.2-2'}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <div class="print-info">
+      <p>Impreso: {{fechaImpresion}}</p>
+      <p>Impreso Por: {{usuarioImpresion}}</p>
+    </div>
+  </footer>
+</div>

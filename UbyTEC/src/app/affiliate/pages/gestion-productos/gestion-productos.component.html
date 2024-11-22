@@ -1,0 +1,104 @@
+<div class="header">
+  <app-header-affiliate></app-header-affiliate>
+</div>
+<div class="container">
+    <!-- Navegación de pestañas -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" [class.active]="activeTab === 'crear'" (click)="setActiveTab('crear')" role="tab">
+            {{editMode ? 'Modificar' : 'Crear'}} Producto
+        </a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" [class.active]="activeTab === 'lista'" (click)="setActiveTab('lista')" role="tab">
+            Lista de Productos
+        </a>
+    </li>
+  </ul>
+  <div class="tab-pane" [class.active]="activeTab === 'crear'" *ngIf="activeTab === 'crear'">
+    <h2 class="mb-4">{{editMode ? 'Modificar' : 'Crear'}} Producto</h2>
+      <!-- Añadir un contenedor para el formulario -->
+      <div class="form-wrapper">
+        <div class="container mt-4">
+  
+          <!-- Formulario que utiliza ngForm -->
+          <form [formGroup]="ProductForm" action="db.json" method="get" class="needs-validation" novalidate (ngSubmit)="submit(ProductForm.value)">
+            <!-- Identificación -->
+            <div class="form-group">
+              <label for="idProducto">ID</label>
+              <input type="text" class="form-control" id="idProdudcto" formControlName="id" required>
+            </div>
+            <!-- Nombre -->
+            <div class="form-group">
+              <label for="NombreProducto">Nombre</label>
+              <input type="text" class="form-control" id="NombreProdudcto" formControlName="nombre"  required>
+            </div>
+  
+            <!-- Tipo de Comercio -->
+            <div class="form-group">
+              <label for="Categoria">Categoría</label>
+              <select class="form-control" id="Categoria" formControlName="categoria" required>
+                <option *ngFor="let cat of catOptions" [value]="cat">{{ cat }}</option>
+              </select>
+            </div>
+  
+            <div class="form-group">
+              <label for="ProductPicture">Subir Imagen</label>
+              <input type="file" class="form-control" id="ProductPicture" accept="image/png, image/jpeg, image/jpg" (change)="onFileSelected($event)">
+            </div>
+  
+            <!-- Precio -->
+            <div class="form-group">
+              <label for="NumeroSINPE">Precio del Producto</label>
+              <input type="number" class="form-control" id="NumeroSINPE" formControlName="precio" step=0.01 required>
+            </div>
+  
+            <!-- Botones -->
+            <br>
+
+            <div class="row mt-4">
+              <div class="col text-center">
+                  <button type="submit" class="btn btn-primary me-2" [disabled]="ProductForm.invalid">
+                      <i class="fas fa-save"></i>
+                      {{editMode ? 'Actualizar' : 'Guardar'}} Producto
+                  </button>
+                  <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+                      <i class="fas fa-times"></i> Cancelar
+                  </button>
+              </div>
+          </div>
+            <div *ngIf="productAdded" class="alert alert-success mt-3">
+              Producto agregado con éxito.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane" [class.active]="activeTab === 'lista'" *ngIf="activeTab === 'lista'">
+    <div class="main-container">
+      <mat-table #table [dataSource]="products">
+        <ng-container *ngFor="let disCol of displayedColumns" matColumnDef="{{disCol}}">
+          <mat-header-cell *matHeaderCellDef>{{disCol}}</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{element[disCol]}}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="editar">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let element">
+            <button mat-button class="btn btn-primary" (click)="editProduct(element.id)">Editar</button>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="eliminar">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let element">
+            <button mat-button class="btn btn-danger" (click)="deleteProduct(element.id)">Eliminar</button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns.concat(['editar', 'eliminar']); sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns.concat(['editar', 'eliminar'])"></mat-row>
+      </mat-table>
+    </div>
+  </div>

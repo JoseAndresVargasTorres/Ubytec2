@@ -1,0 +1,97 @@
+<div class="container">
+    <div class="main-container">
+      <div class="main">
+        <!-- Añadir un contenedor para el formulario -->
+        <div class="form-wrapper">
+          <div class="container mt-4">
+            <h2>Solicitud de Afiliación</h2>
+    
+            <!-- Formulario que utiliza ngForm -->
+            <form #userForm="ngForm" action="db.json" method="get" class="needs-validation" novalidate (ngSubmit)="submit(userForm.value)">
+              
+              <!-- Cédula -->
+              <div class="form-group">
+                <label for="cedula">Número de Cédula</label>
+                <input type="text" class="form-control" id="cedula" name="cedula_Juridica" required ngModel>
+              </div>
+    
+              <!-- Nombre -->
+              <div class="form-group">
+                <label for="NombreComercio">Nombre del Comercio</label>
+                <input type="text" class="form-control" id="NombreComercio"name="nombre" ngModel required>
+              </div>
+    
+              <!-- 
+              
+              <div class="form-group">
+                <label for="Tipo">Tipo de Comercio</label>
+                <select class="form-control" id="Tipo" name="id_Tipo" ngModel required>
+                  <option *ngFor="let tipo of tipoOptions" [value]="tipo">{{ tipo }}</option>
+                </select>
+              </div>
+              Tipo de Comercio -->
+
+              <!-- Nombre -->
+              <div class="form-group">
+                <label for="NombreComercio">Tipo de Comercio</label>
+                <input type="number" class="form-control" id="TipoComercio" step="1" name="id_Tipo" ngModel required>
+              </div>
+
+              <br>
+              <button type="button" class="btn btn-danger" (click)="openAdminDialog()">Gestionar Administrador</button>
+              <!-- Indicator for Administrator Added -->
+              <div *ngIf="adminAdded" class="alert alert-success mt-3">
+                Administrador agregado con éxito.
+              </div>
+              <br>
+    
+              <!-- Dirección (two fields in the same row) -->
+              <h3>Dirección</h3>
+              <div class="form-group row" id="direccion">
+                <div class="col">
+                  <label for="Direccion3">Provincia</label>
+                  <input type="text" class="form-control" id="Direccion3" name="provincia" ngModel required>
+                </div>
+                <div class="col">
+                  <label for="Direccion2">Cantón</label>
+                  <input type="text" class="form-control" id="Direccion2" name="canton" ngModel required>
+                </div>
+                <div class="col">
+                  <label for="Direccion">Distrito</label>
+                  <input type="text" class="form-control" id="Direccion" name="distrito" ngModel required>
+                </div>
+              </div>
+    
+              <!-- Teléfonos (multiple fields) -->
+              <div class="form-group">
+                <label>Teléfonos</label>
+                <div *ngFor="let phone of phones; let i = index; trackBy: trackByIndex" class="input-group mb-2">
+                  <input type="string" class="form-control" placeholder="Número de teléfono" [ngModelOptions]="{standalone: true}" [(ngModel)]="phones[i]" required>
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-danger" *ngIf="i > 0" (click)="removePhone(i)">Eliminar</button>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary" (click)="addPhone()">Añadir Teléfono</button>
+              </div>
+    
+              <!-- Correo Electrónico -->
+              <div class="form-group">
+                <label for="Correo">Correo electrónico</label>
+                <input type="string" class="form-control" id="Correo" name="correo" ngModel required>
+              </div>
+    
+              <!-- SINPE -->
+              <div class="form-group">
+                <label for="NumeroSINPE">Número de SINPE móvil</label>
+                <input type="text" class="form-control" id="NumeroSINPE" name="sinpe" ngModel required>
+              </div>
+    
+              <!-- Botones -->
+              <br>
+              <button type="submit" class="btn btn-primary">Registrar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>    
+  </div>

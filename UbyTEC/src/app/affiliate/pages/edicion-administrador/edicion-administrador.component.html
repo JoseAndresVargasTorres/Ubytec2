@@ -1,0 +1,81 @@
+<div class="header">
+    <app-header-affiliate></app-header-affiliate>
+</div>
+
+<div class="container">
+    <div class="main-container">
+        <div class="main">
+        <!-- Añadir un contenedor para el formulario -->
+        <div class="form-wrapper">
+            <div class="container mt-4">
+            <h2>Configurar Administrador</h2>
+
+            <!-- Formulario que utiliza ngForm -->
+            <form [formGroup]="AdministratorForm" action="db.json" method="get" class="needs-validation" novalidate (ngSubmit)="submitAdmin(AdministratorForm.value)">
+
+                <!-- Usuario -->
+                <h4>Detalles del Usuario</h4>
+                <div class="form-group">
+                <label for="cedula">Número de Cédula</label>
+                <input type="number" class="form-control" id="cedula" formControlName="cedula" required>
+                </div>
+                <div class="form-group row" id="nombre_completo">
+                <div class="col">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" formControlName="nombre" required>
+                </div>
+                <div class="col">
+                    <label for="apellido1">1er Apellido</label>
+                    <input type="text" class="form-control" id="apellido1" formControlName="apellido1" required>
+                </div>
+                <div class="col">
+                    <label for="apellido2">2do Apellido</label>
+                    <input type="text" class="form-control" id="apellido2" formControlName="apellido2" required>
+                </div>
+                </div>
+
+                <div class="form-group">
+                <label for="Usuario">Nombre de usuario</label>
+                <input type="text" class="form-control" id="Uusuario" formControlName="usuario" required>
+                </div>
+
+                <!-- Dirección (two fields in the same row) -->
+                <h4>Dirección</h4>
+                <div class="form-group row" id="direccion">
+                <div class="col">
+                    <label for="Direccion3">Provincia</label>
+                    <input type="text" class="form-control" id="Direccion3" formControlName="provincia" required>
+                </div>
+                <div class="col">
+                    <label for="Direccion2">Cantón</label>
+                    <input type="text" class="form-control" id="Direccion2" formControlName="canton"required>
+                </div>
+                <div class="col">
+                    <label for="Direccion">Distrito</label>
+                    <input type="text" class="form-control" id="Direccion" formControlName="distrito" required>
+                </div>
+                </div>
+
+                <!-- Teléfonos (multiple fields) -->
+                <div class="form-group">
+                <label>Teléfonos</label>
+                <div *ngFor="let phone of phones; let i = index; trackBy: trackByIndex" class="input-group mb-2">
+                    <input type="string" class="form-control" required>
+                    <div class="input-group-append">
+                    <button type="button" class="btn btn-danger" *ngIf="i > 0" (click)="removePhone(i)">Eliminar</button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" (click)="addPhone()">Añadir Teléfono</button>
+                </div>
+                <br>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary mr-2"  (click)="toggleEditMode()">{{ isEditMode ? 'Cancelar Edición' : 'Editar' }}</button>
+                    <!-- Submit button only shows when in edit mode -->
+                    <button *ngIf="isEditMode" type="submit" class="btn btn-primary" [disabled]="!AdministratorForm.valid"> Guardar Cambios</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>

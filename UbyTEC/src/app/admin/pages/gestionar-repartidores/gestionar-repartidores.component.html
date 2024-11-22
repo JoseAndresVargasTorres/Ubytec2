@@ -1,0 +1,227 @@
+<header>
+  <app-header-admin></app-header-admin>
+</header>
+
+<div class="container mt-5">
+  <!-- Tabs de navegación -->
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'crear'" (click)="setActiveTab('crear')" role="tab">
+        {{editMode ? 'Modificar' : 'Crear'}} Repartidor
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'lista'" (click)="setActiveTab('lista')" role="tab">
+        Lista de Repartidores
+      </a>
+    </li>
+  </ul>
+
+  <!-- Contenido de las tabs -->
+  <div class="tab-content mt-3">
+    <!-- Tab de Crear/Modificar Repartidor -->
+    <div class="tab-pane" [class.active]="activeTab === 'crear'" *ngIf="activeTab === 'crear'">
+      <h2 class="mb-4">{{editMode ? 'Modificar' : 'Crear'}} Repartidor</h2>
+
+      <form [formGroup]="repartidorForm" (ngSubmit)="saveRepartidor()">
+        <div class="row">
+          <!-- Columna izquierda: Información básica -->
+          <div class="col-md-6">
+
+            <div class="form-group mb-3">
+              <label for="id" class="form-label">Cedula</label>
+              <input type="text" class="form-control" id="id" formControlName="id"
+                [class.is-invalid]="repartidorForm.get('id')?.invalid && repartidorForm.get('id')?.touched">
+              <div class="invalid-feedback">
+                El usuario es requerido
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="usuario" class="form-label">usuario</label>
+              <input type="text" class="form-control" id="usuario" formControlName="usuario"
+                [class.is-invalid]="repartidorForm.get('usuario')?.invalid && repartidorForm.get('usuario')?.touched">
+              <div class="invalid-feedback">
+                El usuario es requerido
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="password" class="form-label">Contraseña</label>
+              <input
+                type="text"
+                class="form-control"
+                id="password"
+                formControlName="password"
+                [placeholder]="!editMode ? 'Generada Automáticamente' : ''"
+                [class.is-invalid]="editMode && repartidorForm.get('password')?.invalid && repartidorForm.get('password')?.touched">
+              <div class="invalid-feedback" *ngIf="editMode">
+                La contraseña es requerida al actualizar un repartidor
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="nombre" class="form-label">nombre</label>
+              <input type="text" class="form-control" id="nombre" formControlName="nombre"
+                [class.is-invalid]="repartidorForm.get('nombre')?.invalid && repartidorForm.get('nombre')?.touched">
+              <div class="invalid-feedback">
+                El nombre es requerido
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="apellido1" class="form-label">Primer Apellido</label>
+              <input type="text" class="form-control" id="apellido1" formControlName="apellido1"
+                [class.is-invalid]="repartidorForm.get('apellido1')?.invalid && repartidorForm.get('apellido1')?.touched">
+              <div class="invalid-feedback">
+                El primer apellido es requerido
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="apellido2" class="form-label">Segundo Apellido</label>
+              <input type="text" class="form-control" id="apellido2" formControlName="apellido2"
+                [class.is-invalid]="repartidorForm.get('apellido2')?.invalid && repartidorForm.get('apellido2')?.touched">
+              <div class="invalid-feedback">
+                El segundo apellido es requerido
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="correo" class="form-label">correo Electrónico</label>
+              <input type="email" class="form-control" id="correo" formControlName="correo"
+                [class.is-invalid]="repartidorForm.get('correo')?.invalid && repartidorForm.get('correo')?.touched">
+              <div class="invalid-feedback">
+                Por favor, ingrese un correo electrónico válido
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna derecha: Dirección y Teléfonos -->
+          <div class="col-md-6">
+            <!-- Sección de Dirección -->
+            <div class="address-section p-3 rounded mb-3">
+              <h5>Dirección</h5>
+              <div class="form-group mb-3">
+                <label for="provincia" class="form-label">provincia</label>
+                <input type="text" class="form-control" id="provincia" formControlName="provincia"
+                  [class.is-invalid]="repartidorForm.get('provincia')?.invalid && repartidorForm.get('provincia')?.touched">
+                <div class="invalid-feedback">
+                  La provincia es requerida
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="canton" class="form-label">Cantón</label>
+                <input type="text" class="form-control" id="canton" formControlName="canton"
+                  [class.is-invalid]="repartidorForm.get('canton')?.invalid && repartidorForm.get('canton')?.touched">
+                <div class="invalid-feedback">
+                  El cantón es requerido
+                </div>
+              </div>
+
+              <div class="form-group mb-3">
+                <label for="distrito" class="form-label">distrito</label>
+                <input type="text" class="form-control" id="distrito" formControlName="distrito"
+                  [class.is-invalid]="repartidorForm.get('distrito')?.invalid && repartidorForm.get('distrito')?.touched">
+                <div class="invalid-feedback">
+                  El distrito es requerido
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección de Teléfonos -->
+            <div class="form-group mb-3">
+              <h5>Teléfonos</h5>
+              <div formArrayName="TelefonosRepartidor">
+                <div class="telefono-grupo mb-2" *ngFor="let telefono of telefonos.controls; let i = index"
+                     [formGroupName]="i">
+                  <div class="input-group">
+                    <input type="text" class="form-control" formControlName="telefono" placeholder="Número de teléfono">
+                    <button type="button" class="btn btn-danger" (click)="removeTelefonoRegister(i)"
+                            [disabled]="telefonos.length === 1">
+                      <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary mt-2" (click)="addTelefonoRegister()">
+                <i class="fas fa-plus"></i> Agregar Teléfono
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="row mt-4">
+          <div class="col text-center">
+            <button type="submit" class="btn btn-primary me-2">
+              <i class="fas fa-save"></i> {{editMode ? 'Actualizar' : 'Guardar'}} Repartidor
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="resetForm()">
+              <i class="fas fa-times"></i> Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tab de Lista de Repartidores -->
+    <div class="tab-pane" [class.active]="activeTab === 'lista'" *ngIf="activeTab === 'lista'">
+      <h2 class="mb-4">Lista de Repartidores</h2>
+
+      <div class="administradores-container">
+        <!-- Tarjeta para cada repartidor -->
+        <div class="card mb-3" *ngFor="let repartidor of repartidores">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <h5 class="card-title">
+                  {{repartidor.nombre}} {{repartidor.apellido1}} {{repartidor.apellido2}}
+                </h5>
+
+                <div class="info-container">
+                  <p><strong>usuario:</strong> {{repartidor.usuario}}</p>
+                  <p><strong>correo:</strong> {{repartidor.correo}}</p>
+
+                  <!-- Información de dirección -->
+                  <div class="mt-3" *ngIf="getDireccionByid(repartidor.id)">
+                    <h6 class="mb-2">Dirección:</h6>
+                    <p><strong>provincia:</strong> {{getDireccionByid(repartidor.id)?.provincia}}</p>
+                    <p><strong>Cantón:</strong> {{getDireccionByid(repartidor.id)?.canton}}</p>
+                    <p><strong>distrito:</strong> {{getDireccionByid(repartidor.id)?.distrito}}</p>
+                  </div>
+
+                  <!-- Información de teléfonos -->
+                  <div class="telefonos-info mt-3">
+                    <h6 class="mb-2">Teléfonos:</h6>
+                    <ul>
+                      <li *ngFor="let telefono of getTelefonosByidRepartidor(repartidor.id)">
+                        {{telefono.telefono}}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botones de acción -->
+              <div class="col-md-4 d-flex flex-column justify-content-center align-items-end">
+                <button class="btn btn-warning mb-2" (click)="editRepartidor(repartidor.id)">
+                  <i class="fas fa-edit"></i> Actualizar
+                </button>
+                <button class="btn btn-danger" (click)="deleteAllInfoRepartidor(repartidor.id)">
+                  <i class="fas fa-trash"></i> Eliminar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje cuando no hay repartidores -->
+        <div class="alert alert-info text-center" *ngIf="repartidores.length === 0">
+          No hay repartidores registrados
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

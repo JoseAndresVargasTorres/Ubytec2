@@ -1,0 +1,76 @@
+
+    <div class="main-container">
+      <div class="main">
+        <!-- Añadir un contenedor para el formulario -->
+        <div class="form-wrapper">
+          <div class="container mt-4">
+            <h2>Crear Administrador</h2>
+    
+            <!-- Formulario que utiliza ngForm -->
+            <form #userForm="ngForm" action="db.json" method="get" class="needs-validation" novalidate (ngSubmit)="submitAdmin(userForm.value)">
+              
+            
+
+              <!-- Usuario -->
+              <h4>Detalles del Usuario</h4>
+              <div class="form-group">
+                <label for="cedula">Número de Cédula</label>
+                <input type="number" class="form-control" id="cedula" name="cedula" ngModel required>
+              </div>
+              <div class="form-group row" id="nombre_completo">
+                <div class="col">
+                  <label for="nombre">Nombre</label>
+                  <input type="text" class="form-control" id="nombre" name="nombre" ngModel required>
+                </div>
+                <div class="col">
+                  <label for="apellido1">1er Apellido</label>
+                  <input type="text" class="form-control" id="apellido1" name="apellido1" ngModel required>
+                </div>
+                <div class="col">
+                  <label for="apellido2">2do Apellido</label>
+                  <input type="text" class="form-control" id="apellido2" name="apellido2" ngModel required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="Usuario">Nombre de usuario</label>
+                <input type="text" class="form-control" id="Uusuario" name="usuario" ngModel required>
+              </div>
+    
+              <!-- Dirección (two fields in the same row) -->
+              <h4>Dirección</h4>
+              <div class="form-group row" id="direccion">
+                <div class="col">
+                  <label for="Direccion3">Provincia</label>
+                  <input type="text" class="form-control" id="Direccion3" name="provincia" ngModel required>
+                </div>
+                <div class="col">
+                  <label for="Direccion2">Cantón</label>
+                  <input type="text" class="form-control" id="Direccion2" name="canton" ngModel required>
+                </div>
+                <div class="col">
+                  <label for="Direccion">Distrito</label>
+                  <input type="text" class="form-control" id="Direccion" name="distrito" ngModel required>
+                </div>
+              </div>
+    
+              <!-- Teléfonos (multiple fields) -->
+              <div class="form-group">
+                <label>Teléfonos</label>
+                <div *ngFor="let phone of phones; let i = index; trackBy: trackByIndex" class="input-group mb-2">
+                  <input type="string" class="form-control" placeholder="Número de Teléfono" [ngModelOptions]="{standalone: true}" [(ngModel)]="phones[i]" required>
+                  <div class="input-group-append">
+                    <button type="button" class="btn btn-danger" *ngIf="i > 0" (click)="removePhone(i)">Eliminar</button>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary" (click)="addPhone()">Añadir Teléfono</button>
+              </div>
+    
+              <!-- Botones -->
+              <br>
+              <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>    

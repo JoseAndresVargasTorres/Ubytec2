@@ -1,0 +1,16 @@
+.main-container {
+    display: flex;
+    min-height: 100vh;
+  }
+  
+  
+  .main {
+    margin-left: 250px;
+    padding: 40px;
+    flex-grow: 1;
+    height: calc(100vh - 70px); /* Altura ajustada para que ocupe el espacio restante */
+    display: flex;
+    justify-content: start; /* Centrado horizontal */
+    align-items: start; /* Centrado vertical */
+  }
+ 

@@ -1,0 +1,52 @@
+<header>
+  <app-header-admin></app-header-admin>
+</header>
+
+<div class="report-container">
+  <div class="report-header">
+    <h1 class="report-title">UbyTec</h1>
+    <h2>Reporte Consolidado de Ventas</h2>
+  </div>
+
+  <!-- <div class="toggle-button">
+    <button class="btn btn-primary" (click)="toggleFuenteDatos()">
+      Cambiar a datos {{ usarDatosMock ? 'de API' : 'de prueba' }}
+    </button>
+  </div> -->
+
+  <div class="table-container" *ngFor="let clienteGroup of ventasConsolidadas | keyvalue">
+    <h3>Cliente: {{ clienteGroup.key }}</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Afiliado</th>
+          <th>Compras</th>
+          <th>Conductor</th>
+          <th>Monto Total</th>
+          <th>Monto Servicio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let venta of clienteGroup.value">
+          <td>{{ venta.afiliado }}</td>
+          <td>{{ venta.compras }}</td>
+          <td>{{ venta.conductor }}</td>
+          <td>{{ venta.montoTotal | number:'1.2-2' }}</td>
+          <td>{{ venta.montoServicio | number:'1.2-2' }}</td>
+        </tr>
+        <tr class="totals-row">
+          <td>Total</td>
+          <td>{{ calcularTotalesPorCliente(clienteGroup.value).totalCompras }}</td>
+          <td></td>
+          <td>{{ calcularTotalesPorCliente(clienteGroup.value).montoTotal | number:'1.2-2' }}</td>
+          <td>{{ calcularTotalesPorCliente(clienteGroup.value).montoServicio | number:'1.2-2' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="report-footer">
+    <p>Impreso: {{ fechaImpresion }}</p>
+    <p>Impreso Por: {{ impresoPor }}</p>
+  </div>
+</div>

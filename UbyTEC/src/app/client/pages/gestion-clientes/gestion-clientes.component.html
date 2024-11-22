@@ -1,0 +1,137 @@
+<!-- <header>
+  <app-header-client></app-header-client>
+</header> -->
+
+<div class="container mt-5">
+  <!-- Pestañas de navegación -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" [class.active]="activeTab === 'crear'" (click)="setActiveTab('crear')" role="tab">
+        {{editMode ? 'Modificar' : 'Crear'}} Cliente
+      </a>
+    </li>
+
+  </ul>
+
+  <!-- Contenido de las pestañas -->
+  <div class="tab-content mt-3">
+    <!-- Pestaña de Crear/Modificar -->
+    <div class="tab-pane" [class.active]="activeTab === 'crear'" *ngIf="activeTab === 'crear'">
+      <h2 class="mb-4">{{editMode ? 'Modificar' : 'Crear'}} Cliente</h2>
+
+      <form [formGroup]="clienteForm" class="row">
+        <!-- Columna izquierda -->
+        <div class="col-md-6">
+          <!-- Información básica -->
+          <div class="form-group mb-3">
+            <label class="form-label">Cédula</label>
+            <input type="number" class="form-control" formControlName="cedula"
+                   [class.is-invalid]="isFieldInvalid('cedula')">
+            <div class="invalid-feedback">{{getErrorMessage('cedula')}}</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Contraseña</label>
+            <input type="password" class="form-control" formControlName="password"
+                   [class.is-invalid]="isFieldInvalid('password')">
+            <div class="invalid-feedback">{{getErrorMessage('password')}}</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" formControlName="nombre"
+                   [class.is-invalid]="isFieldInvalid('nombre')">
+            <div class="invalid-feedback">{{getErrorMessage('nombre')}}</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Primer Apellido</label>
+            <input type="text" class="form-control" formControlName="apellido1"
+                   [class.is-invalid]="isFieldInvalid('apellido1')">
+            <div class="invalid-feedback">{{getErrorMessage('apellido1')}}</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Segundo Apellido</label>
+            <input type="text" class="form-control" formControlName="apellido2"
+                   [class.is-invalid]="isFieldInvalid('apellido2')">
+            <div class="invalid-feedback">{{getErrorMessage('apellido2')}}</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Correo Electrónico</label>
+            <input type="email" class="form-control" formControlName="correo"
+                   [class.is-invalid]="isFieldInvalid('correo')">
+            <div class="invalid-feedback">{{getErrorMessage('correo')}}</div>
+          </div>
+
+          <div class="form-group mb-3">
+            <label class="form-label">Fecha de Nacimiento</label>
+            <input type="date" class="form-control" formControlName="fecha_Nacimiento"
+                   [class.is-invalid]="isFieldInvalid('fecha_Nacimiento')">
+            <div class="invalid-feedback">{{getErrorMessage('fecha_Nacimiento')}}</div>
+          </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-6">
+          <!-- Sección de dirección -->
+          <div class="address-section p-3 rounded mb-3">
+            <h5>Dirección</h5>
+            <div class="form-group mb-3">
+              <label class="form-label">Provincia</label>
+              <input type="text" class="form-control" formControlName="provincia"
+                     [class.is-invalid]="isFieldInvalid('provincia')">
+              <div class="invalid-feedback">{{getErrorMessage('provincia')}}</div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label class="form-label">Cantón</label>
+              <input type="text" class="form-control" formControlName="canton"
+                     [class.is-invalid]="isFieldInvalid('canton')">
+              <div class="invalid-feedback">{{getErrorMessage('canton')}}</div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label class="form-label">Distrito</label>
+              <input type="text" class="form-control" formControlName="distrito"
+                     [class.is-invalid]="isFieldInvalid('distrito')">
+              <div class="invalid-feedback">{{getErrorMessage('distrito')}}</div>
+            </div>
+          </div>
+
+          <!-- Sección de teléfonos -->
+          <div class="form-group mb-3">
+            <h5>Teléfonos</h5>
+            <div formArrayName="TelefonosCliente">
+              <div class="telefono-grupo mb-2" *ngFor="let telefono of telefonosFormArray.controls; let i = index" [formGroupName]="i">
+                <div class="input-group">
+                  <input type="text" class="form-control" formControlName="telefono" placeholder="Teléfono">
+                  <button type="button" class="btn btn-danger" (click)="removeTelefonoRegister(i)"
+                          [disabled]="telefonosFormArray.length === 1">
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary mt-2" (click)="addTelefonoRegister()">
+              Agregar Teléfono
+            </button>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="row mt-4">
+          <div class="col text-center">
+            <button type="button" class="btn btn-primary me-2" (click)="saveCliente()">
+              {{editMode ? 'Actualizar' : 'Registrar'}} Cliente
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    </div>

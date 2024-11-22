@@ -1,0 +1,130 @@
+<header>
+  <app-header-client></app-header-client>
+</header>
+
+<div class="page-container">
+
+
+  <div class="container animated fadeIn">
+    <!-- Loading spinner -->
+    <div *ngIf="cargando" class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+      {{ errorMessage }}
+    </div>
+
+    <div class="row justify-content-center mt-4">
+      <!-- Resumen del pedido -->
+      <div class="col-md-6 mb-4">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Resumen del Pedido</h5>
+          </div>
+          <div class="card-body">
+            <div class="summary-item">
+              <span>Subtotal:</span>
+              <span>₡{{ totales?.subtotal | number:'1.0-0' }}</span>
+            </div>
+            <div class="summary-item">
+              <span>IVA (13%):</span>
+              <span>₡{{ totales?.iva | number:'1.0-0' }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Comisión por servicio (5%):</span>
+              <span>₡{{ totales?.comisionServicio | number:'1.0-0' }}</span>
+            </div>
+            <div class="summary-item total">
+              <span>Total a pagar:</span>
+              <span class="text-primary">₡{{ totales?.total | number:'1.0-0' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario de tarjeta -->
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Datos de Pago</h5>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="tarjetaForm" (ngSubmit)="procesarPago()">
+              <div class="mb-3">
+                <label class="form-label">Número de Tarjeta</label>
+                <input type="text" class="form-control" formControlName="numero_Tarjeta"
+                       placeholder="1234 5678 9012 3456" maxlength="16">
+                <div class="invalid-feedback"
+                     *ngIf="tarjetaForm.get('numero_Tarjeta')?.touched && tarjetaForm.get('numero_Tarjeta')?.errors">
+                  <div *ngIf="tarjetaForm.get('numero_Tarjeta')?.errors?.['required']">
+                    El número de tarjeta es requerido
+                  </div>
+                  <div *ngIf="tarjetaForm.get('numero_Tarjeta')?.errors?.['minlength'] ||
+                             tarjetaForm.get('numero_Tarjeta')?.errors?.['maxlength']">
+                    El número de tarjeta debe tener 16 dígitos
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label class="form-label">Fecha de Vencimiento (MM/AA)</label>
+                  <input type="text" class="form-control" formControlName="fecha_Vencimiento"
+                         placeholder="MM/AA" maxlength="5">
+                  <div class="invalid-feedback"
+                       *ngIf="tarjetaForm.get('fecha_Vencimiento')?.touched &&
+                             tarjetaForm.get('fecha_Vencimiento')?.errors">
+                    <div *ngIf="tarjetaForm.get('fecha_Vencimiento')?.errors?.['required']">
+                      La fecha de vencimiento es requerida
+                    </div>
+                    <div *ngIf="tarjetaForm.get('fecha_Vencimiento')?.errors?.['pattern']">
+                      Formato inválido. Use MM/AA
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">CVV</label>
+                  <input type="text" class="form-control" formControlName="cvv"
+                         placeholder="123" maxlength="3">
+                  <div class="invalid-feedback"
+                       *ngIf="tarjetaForm.get('cvv')?.touched && tarjetaForm.get('cvv')?.errors">
+                    <div *ngIf="tarjetaForm.get('cvv')?.errors?.['required']">
+                      El CVV es requerido
+                    </div>
+                    <div *ngIf="tarjetaForm.get('cvv')?.errors?.['minlength'] ||
+                               tarjetaForm.get('cvv')?.errors?.['maxlength']">
+                      El CVV debe tener 3 dígitos
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox"
+                       (change)="toggleModoData()" [checked]="usarDatosPrueba">
+                <label class="form-check-label">
+                  Usar datos de prueba
+                </label>
+              </div> -->
+
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary" (click)="volverAlCarrito()">
+                  <i class="bi bi-arrow-left"></i> Volver al Carrito
+                </button>
+                <button type="submit" class="btn btn-primary flex-grow-1"
+                        [disabled]="tarjetaForm.invalid || cargando">
+                  <i class="bi bi-credit-card"></i> Realizar Pago
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,87 @@
+<header>
+  <app-header-client></app-header-client>
+</header>
+
+<div class="page-container">
+
+  <div class="container animated fadeIn">
+    <!-- Loading spinner -->
+    <div *ngIf="cargando" class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+      {{ errorMessage }}
+    </div>
+
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-8">
+        <div class="card">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Recepción de Pedido</h5>
+            <!-- <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox"
+                     (change)="toggleModoData()" [checked]="usarDatosPrueba">
+              <label class="form-check-label text-white">Usar datos de prueba</label>
+            </div> -->
+          </div>
+
+          <div class="card-body">
+            <div *ngIf="pedidoActual" class="pedido-info">
+              <h6 class="mb-4">Detalles del Pedido</h6>
+
+              <div class="info-group">
+                <div class="info-item">
+                  <span class="label">Número de Pedido:</span>
+                  <span class="value">#{{ pedidoActual.num_Pedido }}</span>
+                </div>
+
+                <div class="info-item">
+                  <span class="label">Estado:</span>
+                  <span class="value status-badge">{{ pedidoActual.estado }}</span>
+                </div>
+
+                <div class="info-item">
+                  <span class="label">Monto Total:</span>
+                  <span class="value">₡{{ pedidoActual.monto_Total | number:'1.0-0' }}</span>
+                </div>
+              </div>
+
+              <div *ngIf="repartidor" class="mt-4">
+                <h6 class="mb-3">Información del Repartidor</h6>
+
+                <div class="info-group">
+                  <div class="info-item">
+                    <span class="label">Nombre:</span>
+                    <span class="value">{{ repartidor.nombre }} {{ repartidor.apellido1 }} {{ repartidor.apellido2 }}</span>
+                  </div>
+
+                  <div class="info-item">
+                    <span class="label">Contacto:</span>
+                    <span class="value">{{ repartidor.correo }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <button class="btn btn-success w-100"
+                        (click)="confirmarRecepcion()"
+                        [disabled]="cargando">
+                  <i class="bi bi-check2-circle me-2"></i>
+                  Confirmar Recepción del Pedido
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="!pedidoActual" class="text-center py-4">
+              <p class="text-muted">No hay pedido activo para confirmar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

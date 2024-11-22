@@ -1,0 +1,37 @@
+//Sql Server
+dotnet aspnet-codegenerator controller -name AdministradorController -async -api -m AdministradorItem -dc AdministradorContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name ClienteController -async -api -m ClienteItem -dc ClienteContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name ComercioAfiliadoController -async -api -m ComercioAfiliadoItem -dc ComercioAfiliadoContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name DireccionAdministradorController -async -api -m DireccionAdministradorItem -dc DireccionAdministradorContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name DireccionComercioController -async -api -m DireccionComercioItem -dc DireccionComercioContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name DireccionPedidoController -async -api -m DireccionPedidoItem -dc DireccionPedidoContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name DireccionClienteController -async -api -m DireccionClienteItem -dc DireccionClienteContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name DireccionRepartidorController -async -api -m DireccionRepartidorItem -dc DireccionRepartidorContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name PedidoController -async -api -m PedidoItem -dc PedidoContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name ProductoController -async -api -m ProductoItem -dc ProductoContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name ProductosComercioController -async -api -m ProductosComercioItem -dc ProductosComercioContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name ProductosPedidosController -async -api -m ProductosPedidosItem -dc ProductosPedidosContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name RepartidorController -async -api -m RepartidorItem -dc RepartidorContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name TarjetaCreditoController -async -api -m TarjetaCreditoItem -dc TarjetaCreditoContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name TelefonoAdminController -async -api -m TelefonoAdminItem -dc TelefonoAdminContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name TelefonoClienteController -async -api -m TelefonoClienteItem -dc TelefonoClienteContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name TelefonoComercioController -async -api -m TelefonoComercioItem -dc TelefonoComercioContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name TelefonoRepartidorController -async -api -m TelefonoRepartidorItem -dc TelefonoRepartidorContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name TipoComercioController -async -api -m TipoComercioItem -dc TipoComercioContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name PedidosClienteControllerSQL -async -api -m PedidosClienteItemSQL -dc PedidosClienteContextSQL -outDir Controllers
+dotnet aspnet-codegenerator controller -name ValidacionComercioControllerSQL -async -api -m ValidacionComercioItemSQL -dc ValidacionComercioContextSQL -outDir Controllers
+
+//Mongo
+dotnet aspnet-codegenerator controller -name PedidosClienteController -async -api -m PedidosClienteItem -dc PedidosClienteContext -outDir Controllers
+dotnet aspnet-codegenerator controller -name ValidacionComercioController -async -api -m ValidacionComercioItem -dc ValidacionComercioContext -outDir Controllers
+
+
+
+dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet tool uninstall -g dotnet-aspnet-codegenerator
+dotnet tool install -g dotnet-aspnet-codegenerator
+dotnet tool update -g dotnet-aspnet-codegenerator
+

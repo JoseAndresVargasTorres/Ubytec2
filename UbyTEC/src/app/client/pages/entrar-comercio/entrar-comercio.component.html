@@ -1,0 +1,199 @@
+<header>
+  <app-header-client></app-header-client>
+</header>
+
+<div class="container mt-5">
+  <!-- Header -->
+
+  <!-- Sección de Comercios -->
+  <section class="row mb-4">
+    <div class="col-12">
+      <h2 class="text-center mb-4">Comercios Afiliados en tu Zona</h2>
+
+      <!-- Estado de Carga -->
+      <div *ngIf="cargandoComercios" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <!-- Lista de Comercios -->
+      <div class="comercios-container" *ngIf="!cargandoComercios">
+        <div class="row">
+          <div class="col-md-4 mb-4" *ngFor="let comercio of comercios">
+            <div class="card h-100 comercio-card">
+              <div class="card-body">
+                <h5 class="card-title">{{comercio.nombre}}</h5>
+                <div class="card-text mb-3">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-shop me-2"></i>
+                    <strong>Tipo:</strong>
+                    <span class="ms-2">{{getTipoComercio(comercio.id_Tipo)}}</span>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-envelope me-2"></i>
+                    <strong>Correo:</strong>
+                    <span class="ms-2">{{comercio.correo}}</span>
+                  </div>
+                </div>
+                <button class="btn btn-primary w-100"
+                        (click)="seleccionarComercio(comercio)"
+                        [class.active]="comercioSeleccionado?.cedula_Juridica === comercio.cedula_Juridica">
+                  <i class="bi bi-box-arrow-in-right me-2"></i>
+                  Ver Productos
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de Productos y Carrito -->
+  <section class="row" *ngIf="comercioSeleccionado">
+    <!-- Columna de Productos -->
+    <div class="col-lg-8">
+      <h3 class="mb-4">
+        <i class="bi bi-shop-window me-2"></i>
+        Productos de {{comercioSeleccionado.nombre}}
+      </h3>
+
+      <!-- Filtros -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form [formGroup]="filtroForm" class="row g-3">
+            <div class="col-md-6">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input type="text"
+                       class="form-control"
+                       placeholder="Buscar productos..."
+                       (input)="buscarProductos($event)">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <select class="form-select" formControlName="categoria">
+                <option value="">Todas las categorías</option>
+                <option *ngFor="let categoria of obtenerCategoriasUnicas()"
+                        [value]="categoria">
+                  {{categoria}}
+                </option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Estado de Carga de Productos -->
+      <div *ngIf="cargandoProductos" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando productos...</span>
+        </div>
+      </div>
+
+      <!-- Lista de Productos -->
+      <div class="row" *ngIf="!cargandoProductos">
+        <div class="col-md-6 mb-4" *ngFor="let producto of filtrarProductos()">
+          <div class="card h-100 producto-card">
+            <div class="card-body">
+              <h5 class="card-title">{{producto.nombre}}</h5>
+              <div class="card-text mb-3">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-tag me-2"></i>
+                  <strong>Categoría:</strong>
+                  <span class="ms-2">{{producto.categoria}}</span>
+                </div>
+                <div class="precio">
+                  <i class="bi bi-currency-dollar me-1"></i>
+                  ₡{{producto.precio | number:'1.0-0'}}
+                </div>
+              </div>
+              <button class="btn btn-success w-100"
+                      (click)="agregarAlCarrito(producto)"
+                      [disabled]="cargandoProductos">
+                <i class="bi bi-cart-plus me-2"></i>
+                Agregar al Carrito
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Columna del Carrito -->
+    <div class="col-lg-4">
+      <div class="card carrito-container">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="bi bi-cart3 me-2"></i>
+            Carrito de Compras
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Carrito Vacío -->
+          <div class="text-center py-4" *ngIf="productosCarrito.length === 0">
+            <i class="bi bi-cart-x display-4 text-muted"></i>
+            <p class="mt-3 text-muted">El carrito está vacío</p>
+          </div>
+
+          <!-- Items del Carrito -->
+          <div class="mb-3 producto-carrito" *ngFor="let item of productosCarrito">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1">{{item.producto.nombre}}</h6>
+                <small class="text-muted">
+                  ₡{{item.producto.precio | number:'1.0-0'}} x {{item.cantidad}}
+                </small>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="quantity-controls">
+                  <button type="button" class="btn btn-control"
+                          (click)="actualizarCantidad(item.producto.id, -1)"
+                          [disabled]="item.cantidad <= 1">
+                    <span class="control-icon">−</span>
+                  </button>
+                  <span class="quantity-display">{{item.cantidad}}</span>
+                  <button type="button" class="btn btn-control"
+                          (click)="actualizarCantidad(item.producto.id, 1)"
+                          [disabled]="item.cantidad >= 99">
+                    <span class="control-icon">+</span>
+                  </button>
+                </div>
+                <button class="btn-remove"
+                        (click)="eliminarDelCarrito(item.producto.id)"
+                        title="Eliminar producto">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer del Carrito -->
+        <div class="card-footer">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Total:</h5>
+            <h5 class="mb-0 text-success">₡{{obtenerTotal() | number:'1.0-0'}}</h5>
+          </div>
+          <button class="btn btn-success w-100"
+                  [routerLink]="['/carrito']"
+                  [disabled]="productosCarrito.length === 0">
+            <i class="bi bi-bag-check me-2"></i>
+            Guardar en el Carrito de Compras
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Toggle Modo Datos -->
+  <div class="mt-4 text-center">
+    <button class="btn btn-outline-secondary" (click)="toggleModoData()">
+      <i class="bi" [ngClass]="usarDatosPrueba ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
+      {{usarDatosPrueba ? 'Cambiar a API Real' : 'Usar Datos de Prueba'}}
+    </button>
+  </div>
+</div>

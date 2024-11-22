@@ -1,0 +1,24 @@
+<div class="header">
+  <app-header-affiliate></app-header-affiliate>
+</div>
+
+<div class="container">
+    <div class="main-container">
+      <mat-table #table [dataSource]="objects">
+        <ng-container *ngFor="let disCol of displayedColumns" matColumnDef="{{disCol}}">
+          <mat-header-cell *matHeaderCellDef>{{disCol}}</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{element[disCol]}}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let element">
+            <button mat-button class="btn btn-primary" (click)="openAdminDialog(element.num_Pedido)">Ver más</button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns.concat(['action']); sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns.concat(['action'])"></mat-row>
+      </mat-table>
+    </div>
+  </div>
