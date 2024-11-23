@@ -110,6 +110,9 @@ Base URL: https://ubyapi-1016717342490.us-central1.run.app
 - DELETE /api/Repartidor/{id}
 - GET /api/Repartidor/{Password}/{Usuario}
 
+##ReporteVentas
+- GET /api/ReporteVentas
+
 ## TarjetaCredito
 - GET /api/TarjetaCredito
 - POST /api/TarjetaCredito

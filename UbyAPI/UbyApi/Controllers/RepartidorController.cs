@@ -77,35 +77,17 @@ namespace UbyApi.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRepartidorItem(int id, RepartidorItem repartidorItem)
-
-    //PutT: api/Repartidor/5
-     [HttpPut("{id}")]
-        public async Task<ActionResult<RepartidorItem>> PutRepartidorItem(int id, RepartidorItem repartidorItem)
         {
             if (id != repartidorItem.Id)
             {
-                return BadRequest("El ID en la URL no coincide con el ID del repartidor");
+                return BadRequest();
             }
 
-            // Verificar si el repartidor existe
-            var existingRepartidor = await _context.Repartidor.FindAsync(id);
-            if (existingRepartidor == null)
-            {
-                return NotFound($"No se encontró un repartidor con ID {id}");
-            }
-
-            // Actualizar solo los campos permitidos
-            existingRepartidor.Usuario = repartidorItem.Usuario;
-            existingRepartidor.Nombre = repartidorItem.Nombre;
-            existingRepartidor.Apellido1 = repartidorItem.Apellido1;
-            existingRepartidor.Password = repartidorItem.Password;
-            existingRepartidor.Apellido2 = repartidorItem.Apellido2;
-            existingRepartidor.Correo = repartidorItem.Correo;
+            _context.Entry(repartidorItem).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok(existingRepartidor);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -113,8 +95,13 @@ namespace UbyApi.Controllers
                 {
                     return NotFound();
                 }
-                throw;
+                else
+                {
+                    throw;
+                }
             }
+
+            return NoContent();
         }
 
         // POST: api/Repartidor

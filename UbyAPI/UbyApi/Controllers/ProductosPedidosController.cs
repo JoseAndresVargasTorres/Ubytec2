@@ -43,14 +43,10 @@ namespace UbyApi.Controllers
 
         // PUT: api/ProductosPedidos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProductosPedidosItem(int id, ProductosPedidosItem productosPedidosItem)
+        [HttpPut("{num_pedido}/{id_Producto}")]
+        public async Task<IActionResult> PutProductosPedidosItem(int num_Pedido, int id_Producto, ProductosPedidosItem productosPedidosItem)
         {
-            if (id != productosPedidosItem.Num_Pedido)
-            {
-                return BadRequest();
-            }
-
+            
             _context.Entry(productosPedidosItem).State = EntityState.Modified;
 
             try
@@ -59,7 +55,7 @@ namespace UbyApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductosPedidosItemExists(id))
+                if (!ProductosPedidosItemExists(num_Pedido,id_Producto))
                 {
                     return NotFound();
                 }
@@ -72,9 +68,7 @@ namespace UbyApi.Controllers
             return NoContent();
         }
 
-        // POST: api/ProductosPedidos
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+       [HttpPost]
         public async Task<ActionResult<ProductosPedidosItem>> PostProductosPedidosItem(ProductosPedidosItem productosPedidosItem)
         {
             _context.ProductosPedidos.Add(productosPedidosItem);
@@ -84,7 +78,7 @@ namespace UbyApi.Controllers
             }
             catch (DbUpdateException)
             {
-                if (ProductosPedidosItemExists(productosPedidosItem.Num_Pedido))
+                if (ProductosPedidosItemExists(productosPedidosItem.Num_Pedido, productosPedidosItem.Id_Producto))
                 {
                     return Conflict();
                 }
@@ -94,7 +88,26 @@ namespace UbyApi.Controllers
                 }
             }
 
-            return CreatedAtAction("GetProductosPedidosItem", new { id = productosPedidosItem.Num_Pedido }, productosPedidosItem);
+            return CreatedAtAction(
+                nameof(GetProductosPedidosItem), 
+                new { numPedido = productosPedidosItem.Num_Pedido, idProducto = productosPedidosItem.Id_Producto }, 
+                productosPedidosItem
+            );
+        }
+
+        // Asegúrate de tener este método GET correspondiente:
+        [HttpGet("{numPedido}/{idProducto}")]
+        public async Task<ActionResult<ProductosPedidosItem>> GetProductosPedidosItem(int numPedido, int idProducto)
+        {
+            var item = await _context.ProductosPedidos
+                .FirstOrDefaultAsync(p => p.Num_Pedido == numPedido && p.Id_Producto == idProducto);
+
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            return item;
         }
 
         // DELETE: api/ProductosPedidos/5
@@ -113,9 +126,11 @@ namespace UbyApi.Controllers
             return NoContent();
         }
 
-        private bool ProductosPedidosItemExists(int id)
-        {
-            return _context.ProductosPedidos.Any(e => e.Num_Pedido == id);
+        private bool ProductosPedidosItemExists(int numPedido, int idProducto)
+{
+            return _context.ProductosPedidos.Any(e => 
+                e.Num_Pedido == numPedido && 
+                e.Id_Producto == idProducto);
         }
-    }
+            }
 }

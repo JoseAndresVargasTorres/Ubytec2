@@ -16,10 +16,10 @@ import { AdministradorApp } from '../../interfaces/adminapp/AdministradorApp';
 })
 export class AfiliadoService {
   // URLs base para los diferentes endpoints de la API
-  private apiUrlComercio = 'https://ubyapi-1016717342490.us-central1.run.app/api/ComercioAfiliado/';
-  private apiUrlDireccion = 'https://ubyapi-1016717342490.us-central1.run.app/api/DireccionComercio/';
-  private apiUrlTelefono = 'https://ubyapi-1016717342490.us-central1.run.app/api/TelefonoComercio/';
-  private apiUrlTipoComercio = 'https://ubyapi-1016717342490.us-central1.run.app/api/TipoComercio/';
+  private apiUrlComercio = 'http://localhost:5037/api/ComercioAfiliado/';
+  private apiUrlDireccion = 'http://localhost:5037/api/DireccionComercio/';
+  private apiUrlTelefono = 'http://localhost:5037/api/TelefonoComercio/';
+  private apiUrlTipoComercio = 'http://localhost:5037/api/TipoComercio/';
 
   constructor(private http: HttpClient) {} // Inyección del servicio HttpClient
 

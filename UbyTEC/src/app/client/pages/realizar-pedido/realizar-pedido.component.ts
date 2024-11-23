@@ -28,7 +28,7 @@ interface TotalesPedido {
   styleUrls: ['./realizar-pedido.component.css']
 })
 export class RealizarPedidoComponent implements OnInit {
-  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
+  private readonly apiUrl = 'http://localhost:5037/api/';
   private readonly MOCK_DELAY = 800;
 
   tarjetaForm: FormGroup;
@@ -43,6 +43,15 @@ export class RealizarPedidoComponent implements OnInit {
     fecha_Vencimiento: "12/25",
     cvv: 123
   };
+
+  get minDate(): string {
+    let today = new Date();
+    today.setMonth(today.getMonth() + 1); // Set minimum to next month
+    let year = today.getFullYear();
+    let month = String(today.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}-01`;
+  }
+
 
   constructor(
     private formBuilder: FormBuilder,
@@ -81,14 +90,10 @@ export class RealizarPedidoComponent implements OnInit {
   }
 
   private async inicializarModoData(): Promise<void> {
-    try {
-      const apiDisponible = await this.verificarDisponibilidadAPI();
-      this.usarDatosPrueba = !apiDisponible;
-    } catch (error) {
-      this.manejarError(error);
-      this.usarDatosPrueba = true;
+
+      this.usarDatosPrueba = false;
     }
-  }
+
 
   private verificarDisponibilidadAPI(): Promise<boolean> {
     return new Promise((resolve) => {
@@ -100,7 +105,7 @@ export class RealizarPedidoComponent implements OnInit {
   }
 
   private recuperarTotales(): void {
-    const totalesString = sessionStorage.getItem('totales_pedido');
+    let totalesString = sessionStorage.getItem('totales_pedido');
     if (totalesString) {
       this.totales = JSON.parse(totalesString);
     } else {
@@ -115,32 +120,109 @@ export class RealizarPedidoComponent implements OnInit {
     }
 
     try {
+      let userDataStr = localStorage.getItem('loggedInUser');
+      console.log("userDataStr", userDataStr);
+
+      if (!userDataStr) {
+        throw new Error('No se encontró información del usuario');
+      }
+
+      let userData = JSON.parse(userDataStr);
+      console.log("User data ", userData);
       this.cargando = true;
-      const tarjetaData: TarjetaCredito = {
-        ...this.tarjetaForm.value,
-        cedula_Cliente: 123456789 // Obtener de sesión en implementación real
+
+      let cartItems = localStorage.getItem('carrito');
+      if (!cartItems) {
+        throw new Error('No hay items en el carrito');
+      }
+
+      let formValues = this.tarjetaForm.value;
+      let [month, year] = formValues.fecha_Vencimiento.split('/');
+      let fecha = new Date(2000 + parseInt(year), parseInt(month) - 1);
+      let fechaFormatted = fecha.toISOString().split('T')[0];
+
+      let tarjetaData: TarjetaCredito = {
+        numero_Tarjeta: formValues.numero_Tarjeta,
+        fecha_Vencimiento: fechaFormatted,
+        cvv: formValues.cvv,
+        cedula_Cliente: userData.cedula
       };
 
-      if (!this.usarDatosPrueba) {
-        // Guardar datos de tarjeta
-        await this.http.post(`${this.apiUrl}TarjetaCredito`, tarjetaData).toPromise();
+      console.log("Sending tarjetaData:", tarjetaData);
 
-        // Crear pedido
-        const pedido: Pedido = {
-          num_Pedido: Date.now(), // La API debería generar esto
-          nombre: "Pedido " + Date.now(),
+      if (!this.usarDatosPrueba) {
+        await this.http.post(`${this.apiUrl}TarjetaCredito`, tarjetaData).toPromise();
+        let comercioId = sessionStorage.getItem('comercio_id');
+
+        // Validar que existe el comercio
+        if (!comercioId) {
+          throw new Error('No se encontró el ID del comercio');
+        }
+
+        // Verificar que el comercio existe antes de crear el pedido
+        try {
+          await this.http.get(`${this.apiUrl}ComercioAfiliado/${comercioId}`).toPromise();
+        } catch (error) {
+          throw new Error(`El comercio con ID ${comercioId} no existe`);
+        }
+
+        let pedidosResponse = await this.http.get<Pedido[]>(`${this.apiUrl}Pedido`).toPromise();
+        let ultimoNumPedido = pedidosResponse ? Math.max(...pedidosResponse.map(p => p.num_Pedido), 0) : 0;
+        let siguienteNumPedido = ultimoNumPedido + 1;
+
+        let pedido: Pedido = {
+          num_Pedido: siguienteNumPedido,
+          nombre: `Pedido ${siguienteNumPedido}`,
           estado: "Nuevo",
           monto_Total: this.totales?.total || 0,
-          id_Repartidor: 0, // Se asigna después
-          cedula_Comercio: sessionStorage.getItem('comercio_id') || ''
+          id_Repartidor: 1,
+          cedula_Comercio: comercioId
         };
 
-        await this.http.post(`${this.apiUrl}Pedido`, pedido).toPromise();
+        // Validaciones adicionales
+        if (pedido.monto_Total <= 0) {
+          throw new Error('El monto total debe ser mayor a 0');
+        }
+
+        console.log("Intentando crear pedido con datos:", pedido);
+
+        let response = await this.http.post<Pedido>(`${this.apiUrl}Pedido`, pedido).toPromise();
+        console.log("Respuesta del servidor:", response);
+
+        if (response) {
+          let cartItemsStr = localStorage.getItem('carrito');
+          if (!cartItemsStr) {
+            throw new Error('No hay items en el carrito');
+          }
+          let cartData = JSON.parse(cartItemsStr);
+          console.log("Datos del carrito:", cartData);
+
+          let productos = cartData.productos;
+
+          if (!Array.isArray(productos)) {
+            throw new Error('Formato de carrito inválido');
+          }
+
+          console.log("productos ", productos);
+          let productosPedidos: ProductosPedidos[] = productos.map((item: any) => ({
+            num_Pedido: response.num_Pedido,
+            id_Producto: item.producto.id
+          }));
+
+          console.log("ProductosPedidos a enviar:", productosPedidos);
+
+          if (productosPedidos.length > 0) {
+            for (let i = 0; i < productosPedidos.length; i++) {
+              await this.http.post(`${this.apiUrl}ProductosPedidos`, productosPedidos[i]).toPromise();
+            }
+          } else {
+            throw new Error('No hay productos para registrar');
+          }
+        }
       } else {
         await this.simularDelay();
       }
 
-      // Limpiar carrito y storage
       localStorage.removeItem('carrito');
       sessionStorage.removeItem('totales_pedido');
 
@@ -153,11 +235,16 @@ export class RealizarPedidoComponent implements OnInit {
 
       this.router.navigate(['/']);
     } catch (error) {
+      console.error('Error completo:', error);
+      if (error instanceof HttpErrorResponse) {
+        console.error('Status:', error.status);
+        console.error('Error body:', error.error);
+      }
       this.manejarError(error);
     } finally {
       this.cargando = false;
     }
-  }
+}
 
   private async simularDelay(): Promise<void> {
     if (this.usarDatosPrueba) {
@@ -207,7 +294,7 @@ export class RealizarPedidoComponent implements OnInit {
   }
 
   volverAlCarrito(): void {
-    this.router.navigate(['/administrar-carrito']);
+    this.router.navigate(['/entrar-comercios']);
   }
 
   ngOnDestroy(): void {

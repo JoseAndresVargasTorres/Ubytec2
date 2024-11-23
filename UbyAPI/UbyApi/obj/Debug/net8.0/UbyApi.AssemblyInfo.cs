@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UbyApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cda5819d9fe2ead0bd11745c5bbe7d062c5c9ea8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96af0d68c3897d577dbbc1f861eef955b99edbb9")]
 [assembly: System.Reflection.AssemblyProductAttribute("UbyApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UbyApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

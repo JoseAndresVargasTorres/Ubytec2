@@ -1,0 +1,24 @@
+ {"PedidosCliente": {
+        "fields": [
+            {
+                "field": "num_pedido",
+                "type": "int"
+            },
+            {
+                "field": "cedula_cliente",
+                "type": "int"
+            },
+            {
+                "field": "feedback",
+                "type": "TEXT"
+            },
+            {
+                "field": "FOREIGN",
+                "type": "KEY"
+            },
+            {
+                "field": "FOREIGN",
+                "type": "KEY"
+            }
+        ]
+    }}

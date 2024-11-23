@@ -26,7 +26,7 @@ interface UltimaCompra {
   styleUrls: ['./ultimas-compras.component.css']
 })
 export class UltimasComprasComponent implements OnInit {
-  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
+  private readonly apiUrl = 'http://localhost:5037/api/';
   private readonly MOCK_DELAY = 800;
 
   ultimasCompras: UltimaCompra[] = [];

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
-import { ComercioAfiliado, Producto, DireccionComercio } from '../../interfaces/allinterfaces';
+import { ComercioAfiliado, Producto, DireccionComercio, ProductoComercio } from '../../interfaces/allinterfaces';
 import { HeaderClientComponent } from '../../components/header-client/header-client.component';
 import Swal from 'sweetalert2';
 
@@ -31,7 +31,7 @@ interface CarritoState {
   styleUrls: ['./entrar-comercio.component.css']
 })
 export class EntrarComercioComponent implements OnInit {
-  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
+  private readonly apiUrl = 'http://localhost:5037/api/';
   private readonly MAX_CANTIDAD = 99;
   private readonly MIN_CANTIDAD = 1;
 
@@ -172,7 +172,7 @@ export class EntrarComercioComponent implements OnInit {
   // Inicialización y carga de datos
   private async inicializarModoData(): Promise<void> {
     try {
-      const apiDisponible = await this.verificarDisponibilidadAPI();
+      let apiDisponible = await this.verificarDisponibilidadAPI();
       this.usarDatosPrueba = !apiDisponible;
 
       if (!apiDisponible) {
@@ -190,11 +190,33 @@ export class EntrarComercioComponent implements OnInit {
       if (this.usarDatosPrueba) {
         await this.simularDelay();
         this.comercios = this.mockComercios;
+
+        let carritoGuardado = localStorage.getItem('carrito');
+      if (carritoGuardado) {
+        let carrito: CarritoState = JSON.parse(carritoGuardado);
+        let comercioEncontrado = this.comercios.find(c => c.cedula_Juridica === carrito.comercioId);
+        if (comercioEncontrado) {
+          this.cambiarComercio(comercioEncontrado);
+        }
+      }
+
+
       } else {
-        const response = await this.http.get<ComercioAfiliado[]>(
+        let response = await this.http.get<ComercioAfiliado[]>(
           `${this.apiUrl}ComercioAfiliado`
         ).toPromise();
         this.comercios = response || [];
+        // Misma lógica para la versión no de prueba
+      let carritoGuardado = localStorage.getItem('carrito');
+      if (carritoGuardado) {
+        let carrito: CarritoState = JSON.parse(carritoGuardado);
+        const comercioEncontrado = this.comercios.find(c => c.cedula_Juridica === carrito.comercioId);
+        if (comercioEncontrado) {
+          this.cambiarComercio(comercioEncontrado);
+        }
+      }
+
+
       }
     } catch (error) {
       this.manejarError(error);
@@ -211,10 +233,22 @@ export class EntrarComercioComponent implements OnInit {
         await this.simularDelay(800);
         this.productosComercio = this.mockProductosPorComercio[cedulaJuridica] || [];
       } else {
-        const response = await this.http.get<Producto[]>(
-          `${this.apiUrl}ProductoComercio/${cedulaJuridica}`
+        // Primero obtener los IDs de productos del comercio
+        let productosComercio = await this.http.get<ProductoComercio[]>(
+          `${this.apiUrl}ProductosComercio`
         ).toPromise();
-        this.productosComercio = response || [];
+
+        // Filtrar los productos que pertenecen a este comercio
+        let productosDelComercio = productosComercio?.filter(
+          pc => pc.cedula_Comercio === cedulaJuridica
+        ) || [];
+
+        // Obtener los detalles de cada producto
+        let promesasProductos = productosDelComercio.map(pc =>
+          this.http.get<Producto>(`${this.apiUrl}Producto/${pc.id_Producto}`).toPromise()
+        );
+
+        this.productosComercio = (await Promise.all(promesasProductos)).filter(p => p !== null) as Producto[];
       }
     } catch (error) {
       this.manejarError(error);
@@ -255,12 +289,12 @@ export class EntrarComercioComponent implements OnInit {
   }
 
   actualizarCantidad(productoId: number, cambio: number): void {
-    const item = this.productosCarrito.find(
+    let item = this.productosCarrito.find(
       item => item.producto.id === productoId
     );
 
     if (item) {
-      const nuevaCantidad = item.cantidad + cambio;
+      let nuevaCantidad = item.cantidad + cambio;
 
       if (nuevaCantidad >= this.MIN_CANTIDAD && nuevaCantidad <= this.MAX_CANTIDAD) {
         item.cantidad = nuevaCantidad;
@@ -309,6 +343,15 @@ export class EntrarComercioComponent implements OnInit {
     });
   }
 
+  private verificarEstadoComercio(): void {
+    const comercioId = sessionStorage.getItem('comercio_id');
+    console.log('Estado actual comercio_id:', comercioId);
+    if (!comercioId && this.comercioSeleccionado) {
+      sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica);
+      console.log('Comercio ID restaurado:', this.comercioSeleccionado.cedula_Juridica);
+    }
+  }
+
   obtenerTotal(): number {
     return this.productosCarrito.reduce((total, item) =>
       total + (item.producto.precio * item.cantidad), 0
@@ -319,22 +362,26 @@ export class EntrarComercioComponent implements OnInit {
   private guardarCarrito(): void {
     if (!this.comercioSeleccionado) return;
 
-    const carritoState: CarritoState = {
+    let carritoState: CarritoState = {
       comercioId: this.comercioSeleccionado.cedula_Juridica,
       comercioNombre: this.comercioSeleccionado.nombre,
       productos: this.productosCarrito
     };
 
     localStorage.setItem('carrito', JSON.stringify(carritoState));
+    console.log("comercio id  ", sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica) )
+    sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica);
   }
 
   private recuperarCarrito(): void {
     try {
-      const carritoGuardado = localStorage.getItem('carrito');
+      let carritoGuardado = localStorage.getItem('carrito');
       if (carritoGuardado) {
-        const carrito: CarritoState = JSON.parse(carritoGuardado);
+        let carrito: CarritoState = JSON.parse(carritoGuardado);
         if (carrito.comercioId === this.comercioSeleccionado?.cedula_Juridica) {
           this.productosCarrito = carrito.productos;
+          console.log("comercio_id  ", sessionStorage.setItem('comercio_id', carrito.comercioId))
+          sessionStorage.setItem('comercio_id', carrito.comercioId);
         }
       }
     } catch (error) {
@@ -372,16 +419,19 @@ export class EntrarComercioComponent implements OnInit {
 
   private cambiarComercio(comercio: ComercioAfiliado): void {
     this.comercioSeleccionado = comercio;
+    sessionStorage.setItem('comercio_id', comercio.cedula_Juridica);
+    console.log('Comercio ID guardado:', comercio.cedula_Juridica); // Debug log
+
     this.cargarProductosComercio(comercio.cedula_Juridica);
   }
 
   // Métodos de filtrado
   filtrarProductos(): Producto[] {
     let productos = [...this.productosComercio];
-    const filtros = this.filtroForm.value;
+    let filtros = this.filtroForm.value;
 
     if (this.busquedaProducto) {
-      const busqueda = this.busquedaProducto.toLowerCase();
+      let busqueda = this.busquedaProducto.toLowerCase();
       productos = productos.filter(p =>
         p.nombre.toLowerCase().includes(busqueda) ||
         p.categoria.toLowerCase().includes(busqueda)
@@ -404,7 +454,7 @@ export class EntrarComercioComponent implements OnInit {
   }
 
   buscarProductos(event: Event): void {
-    const input = event.target as HTMLInputElement;
+    let input = event.target as HTMLInputElement;
     this.busquedaProducto = input.value;
   }
 
@@ -453,7 +503,7 @@ export class EntrarComercioComponent implements OnInit {
 
   // Helpers
   getTipoComercio(id: number): string {
-    const tipos: { [key: number]: string } = {
+    let tipos: { [key: number]: string } = {
       1: 'Restaurante',
       2: 'Supermercado',
       3: 'Farmacia',
@@ -467,6 +517,7 @@ export class EntrarComercioComponent implements OnInit {
     this.usarDatosPrueba = !this.usarDatosPrueba;
     this.cargarComerciosRegion();
     if (this.comercioSeleccionado) {
+
       this.cargarProductosComercio(this.comercioSeleccionado.cedula_Juridica);
     }
 
@@ -484,6 +535,9 @@ export class EntrarComercioComponent implements OnInit {
         return;
       }
 
+      if (this.comercioSeleccionado) {
+        sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica);
+      }
       // Guardar estado actual del carrito
       this.guardarCarrito();
 

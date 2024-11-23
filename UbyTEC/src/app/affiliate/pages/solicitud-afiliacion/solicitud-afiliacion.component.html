@@ -1,97 +1,209 @@
 <div class="container">
-    <div class="main-container">
-      <div class="main">
-        <!-- Añadir un contenedor para el formulario -->
-        <div class="form-wrapper">
-          <div class="container mt-4">
-            <h2>Solicitud de Afiliación</h2>
-    
-            <!-- Formulario que utiliza ngForm -->
-            <form #userForm="ngForm" action="db.json" method="get" class="needs-validation" novalidate (ngSubmit)="submit(userForm.value)">
-              
-              <!-- Cédula -->
-              <div class="form-group">
-                <label for="cedula">Número de Cédula</label>
-                <input type="text" class="form-control" id="cedula" name="cedula_Juridica" required ngModel>
-              </div>
-    
-              <!-- Nombre -->
-              <div class="form-group">
-                <label for="NombreComercio">Nombre del Comercio</label>
-                <input type="text" class="form-control" id="NombreComercio"name="nombre" ngModel required>
-              </div>
-    
-              <!-- 
-              
-              <div class="form-group">
-                <label for="Tipo">Tipo de Comercio</label>
-                <select class="form-control" id="Tipo" name="id_Tipo" ngModel required>
-                  <option *ngFor="let tipo of tipoOptions" [value]="tipo">{{ tipo }}</option>
-                </select>
-              </div>
-              Tipo de Comercio -->
+  <div class="main-container">
+    <div class="main">
+      <div class="form-wrapper">
+        <div class="container mt-4">
+          <h2 class="text-center mb-4">Solicitud de Afiliación</h2>
 
-              <!-- Nombre -->
-              <div class="form-group">
-                <label for="NombreComercio">Tipo de Comercio</label>
-                <input type="number" class="form-control" id="TipoComercio" step="1" name="id_Tipo" ngModel required>
+          <!-- Sección de información del comercio -->
+          <div class="form-section">
+            <div class="form-group mb-3">
+              <label for="cedula_Juridica" class="form-label">Número de Cédula Jurídica</label>
+              <input
+                type="text"
+                class="form-control"
+                id="cedula_Juridica"
+                name="cedula_Juridica"
+                [(ngModel)]="formData.cedula_Juridica"
+                required
+                placeholder="Ingrese la cédula jurídica"
+              >
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="nombre" class="form-label">Nombre del Comercio</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nombre"
+                name="nombre"
+                [(ngModel)]="formData.nombre"
+                required
+                placeholder="Ingrese el nombre del comercio"
+              >
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="id_Tipo" class="form-label">Tipo de Comercio</label>
+              <div *ngIf="loading" class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Cargando...</span>
               </div>
 
-              <br>
-              <button type="button" class="btn btn-danger" (click)="openAdminDialog()">Gestionar Administrador</button>
-              <!-- Indicator for Administrator Added -->
-              <div *ngIf="adminAdded" class="alert alert-success mt-3">
-                Administrador agregado con éxito.
+              <select
+                class="form-select"
+                id="id_Tipo"
+                name="id_Tipo"
+                [(ngModel)]="formData.id_Tipo"
+                required
+                [disabled]="loading"
+              >
+                <option value="">Seleccione un tipo de comercio</option>
+                <option *ngFor="let tipo of tiposComercio" [value]="tipo.id">
+                  {{tipo.nombre}}
+                </option>
+              </select>
+
+              <div *ngIf="errorCarga" class="alert alert-danger mt-2">
+                Error al cargar los tipos de comercio. Por favor, intente nuevamente.
               </div>
-              <br>
-    
-              <!-- Dirección (two fields in the same row) -->
-              <h3>Dirección</h3>
-              <div class="form-group row" id="direccion">
-                <div class="col">
-                  <label for="Direccion3">Provincia</label>
-                  <input type="text" class="form-control" id="Direccion3" name="provincia" ngModel required>
+            </div>
+          </div>
+
+          <!-- Botón para gestionar administrador -->
+          <div class="form-section">
+            <button
+              type="button"
+              class="btn btn-primary mb-3"
+              (click)="openAdminDialog()"
+            >
+              Gestionar Administrador
+            </button>
+
+            <div *ngIf="adminAdded" class="alert alert-success">
+              Administrador agregado con éxito.
+            </div>
+          </div>
+
+          <!-- Sección de dirección -->
+          <!-- Reemplazar la sección de dirección existente con esto -->
+          <div class="form-section">
+            <h3 class="section-title">Dirección</h3>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="provincia" class="form-label">Provincia</label>
+                  <select
+                    class="form-select"
+                    id="provincia"
+                    name="provincia"
+                    [(ngModel)]="formData.provincia"
+                    required
+                  >
+                    <option value="">Seleccione una provincia</option>
+                    <option *ngFor="let provincia of provincias" [value]="provincia">
+                      {{provincia}}
+                    </option>
+                  </select>
                 </div>
-                <div class="col">
-                  <label for="Direccion2">Cantón</label>
-                  <input type="text" class="form-control" id="Direccion2" name="canton" ngModel required>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="canton" class="form-label">Cantón</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="canton"
+                    name="canton"
+                    [(ngModel)]="formData.canton"
+                    required
+                    placeholder="Ingrese el cantón"
+                  >
                 </div>
-                <div class="col">
-                  <label for="Direccion">Distrito</label>
-                  <input type="text" class="form-control" id="Direccion" name="distrito" ngModel required>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="distrito" class="form-label">Distrito</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="distrito"
+                    name="distrito"
+                    [(ngModel)]="formData.distrito"
+                    required
+                    placeholder="Ingrese el distrito"
+                  >
                 </div>
               </div>
-    
-              <!-- Teléfonos (multiple fields) -->
-              <div class="form-group">
-                <label>Teléfonos</label>
-                <div *ngFor="let phone of phones; let i = index; trackBy: trackByIndex" class="input-group mb-2">
-                  <input type="string" class="form-control" placeholder="Número de teléfono" [ngModelOptions]="{standalone: true}" [(ngModel)]="phones[i]" required>
-                  <div class="input-group-append">
-                    <button type="button" class="btn btn-danger" *ngIf="i > 0" (click)="removePhone(i)">Eliminar</button>
-                  </div>
+            </div>
+          </div>
+
+          <!-- Sección de teléfonos -->
+          <div class="form-section">
+            <h3 class="section-title">Teléfonos</h3>
+            <div class="phone-list">
+              <div class="phone-item" *ngFor="let phone of phones; let i = index; trackBy: trackByIndex">
+                <div class="input-group mb-2">
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="phones[i]"
+                    placeholder="Ingrese el teléfono"
+                    required
+                  >
+                  <button
+                    class="btn btn-danger"
+                    type="button"
+                    (click)="removePhone(i)"
+                    [disabled]="phones.length === 1"
+                  >
+                    Eliminar
+                  </button>
                 </div>
-                <button type="button" class="btn btn-secondary" (click)="addPhone()">Añadir Teléfono</button>
               </div>
-    
-              <!-- Correo Electrónico -->
-              <div class="form-group">
-                <label for="Correo">Correo electrónico</label>
-                <input type="string" class="form-control" id="Correo" name="correo" ngModel required>
-              </div>
-    
-              <!-- SINPE -->
-              <div class="form-group">
-                <label for="NumeroSINPE">Número de SINPE móvil</label>
-                <input type="text" class="form-control" id="NumeroSINPE" name="sinpe" ngModel required>
-              </div>
-    
-              <!-- Botones -->
-              <br>
-              <button type="submit" class="btn btn-primary">Registrar</button>
-            </form>
+            </div>
+            <button
+              type="button"
+              class="btn btn-secondary mb-3"
+              (click)="addPhone()"
+            >
+              Añadir Teléfono
+            </button>
+          </div>
+
+          <!-- Sección de contacto -->
+          <div class="form-section">
+            <div class="form-group mb-3">
+              <label for="correo" class="form-label">Correo electrónico</label>
+              <input
+                type="email"
+                class="form-control"
+                id="correo"
+                name="correo"
+                [(ngModel)]="formData.correo"
+                required
+                placeholder="Ingrese el correo electrónico"
+              >
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="sinpe" class="form-label">Número de SINPE móvil</label>
+              <input
+                type="text"
+                class="form-control"
+                id="sinpe"
+                name="sinpe"
+                [(ngModel)]="formData.sinpe"
+                required
+                placeholder="Ingrese el número SINPE"
+              >
+            </div>
+          </div>
+
+          <!-- Botón de registro -->
+          <div class="form-section text-center">
+            <button
+              type="submit"
+              class="btn btn-success btn-lg"
+              (click)="submit(formData)"
+              [disabled]="!adminAdded"
+            >
+              Registrar
+            </button>
           </div>
         </div>
       </div>
-    </div>    
+    </div>
   </div>
+</div>

@@ -10,6 +10,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import Swal from 'sweetalert2';
 import { forkJoin } from 'rxjs';
 import { HeaderClientComponent } from '../../components/header-client/header-client.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-gestion-clientes',
@@ -28,11 +29,29 @@ export class GestionClientesComponent implements OnInit {
   clientes: Cliente[] = [];
   direcciones_cliente: DireccionCliente[] = [];
   telefonos_cliente: TelefonoCliente[] = [];
+  provincias: string[] = [
+    'San José',
+    'Alajuela',
+    'Cartago',
+    'Heredia',
+    'Guanacaste',
+    'Puntarenas',
+    'Limón'
+  ];
 
-  constructor(private fb: FormBuilder, private clienteService: ClienteService) {
+
+
+  selectedCantones: string[] = [];
+  selectedDistritos: string[] = [];
+
+
+  constructor(private fb: FormBuilder,
+              private clienteService: ClienteService,
+              private router:Router) {
 
     this.clienteForm = this.fb.group({
       cedula: ['', Validators.required],
+      usuario:['',Validators.required],
       password: ['', [Validators.required]],
       nombre: ['', Validators.required],
       apellido1: ['', Validators.required],
@@ -46,6 +65,9 @@ export class GestionClientesComponent implements OnInit {
         this.createTelefonoFormGroup()
       ])
     });
+
+      // Suscribirse a los cambios de provincia para actualizar cantones
+
   }
 
   ngOnInit(): void {
@@ -58,14 +80,14 @@ export class GestionClientesComponent implements OnInit {
 
 
   private buildClienteObject(data: any): Cliente {
-    const cedula = parseInt(data.cedula);
+    let cedula = parseInt(data.cedula);
     if (!cedula || isNaN(cedula)) {
       throw new Error('Cédula inválida');
     }
 
-    return {
+    let cliente = {
       cedula: cedula,
-      usuario: data.correo?.split('@')[0] || '',
+      usuario: data.usuario?.trim() || '',
       password: data.password?.trim() || '',
       nombre: data.nombre?.trim() || '',
       apellido1: data.apellido1?.trim() || '',
@@ -73,6 +95,8 @@ export class GestionClientesComponent implements OnInit {
       correo: data.correo?.trim() || '',
       fecha_Nacimiento: new Date(data.fecha_Nacimiento)
     };
+
+    return cliente;
   }
 
   private buildDireccionObject(data: any, cedulaCliente: number): DireccionCliente {
@@ -104,9 +128,16 @@ export class GestionClientesComponent implements OnInit {
     let direccionToAdd = this.buildDireccionObject(clienteData, cedulaCliente);
     let telefonosToAdd = this.buildTelefonosArray(this.telefonosFormArray.value, cedulaCliente);
 
+
+    console.log('Cliente a crear:', clienteToAdd);
+    localStorage.setItem('loggedInUser', JSON.stringify(clienteToAdd));
+
     this.clienteService.createCliente(clienteToAdd).subscribe({
       next: (clienteResponse) => {
         console.log('Cliente creado:', clienteResponse);
+        // Guardar datos del cliente en localStorage
+        localStorage.setItem('loggedInUser', JSON.stringify(clienteToAdd));
+
         this.clienteService.createDireccionCliente(direccionToAdd).subscribe({
           next: (direccionResponse) => {
             console.log('Dirección creada:', direccionResponse);
@@ -114,7 +145,7 @@ export class GestionClientesComponent implements OnInit {
               next: (telefonosResponse) => {
                 console.log('Teléfonos creados:', telefonosResponse);
                 this.getAllTelefonos();
-                this.showSuccess('Cliente y datos relacionados creados correctamente');
+                this.handleSuccessfulRegistration();
               },
               error: (error) => {
                 console.error('Error al crear los teléfonos:', error);
@@ -136,6 +167,19 @@ export class GestionClientesComponent implements OnInit {
       }
     });
   }
+
+
+
+  private handleSuccessfulRegistration(): void {
+    Swal.fire({
+      title: 'Éxito',
+      text: 'Cliente registrado correctamente',
+      icon: 'success'
+    }).then(() => {
+      this.router.navigate(['/entrar-comercios']);
+    });
+  }
+
 
   private updateExistingCliente(clienteData: any): void {
     let cedula = parseInt(clienteData.cedula);
@@ -267,6 +311,11 @@ export class GestionClientesComponent implements OnInit {
       title: 'Éxito',
       text: message,
       icon: 'success'
+    }).then(() => {
+      if (!this.editMode) {
+        // Solo navegamos a /entrar-comercios si estamos creando un nuevo cliente
+        this.router.navigate(['/entrar-comercios']);
+      }
     });
   }
 
@@ -315,7 +364,7 @@ export class GestionClientesComponent implements OnInit {
   cancelEdit(): void {
     this.clearFormData();
     this.editMode = false;
-    this.setActiveTab('lista');
+    this.router.navigate(['/']);
   }
 
   // Método para validar campos del formulario

@@ -31,6 +31,21 @@
           </div>
 
           <div class="form-group mb-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <input
+              type="text"
+              class="form-control"
+              id="usuario"
+              formControlName="usuario"
+              [class.is-invalid]="isFieldInvalid('usuario')"
+              placeholder="Ingrese su nombre de usuario"
+            >
+            <div class="invalid-feedback" *ngIf="isFieldInvalid('usuario')">
+              {{ getErrorMessage('usuario') }}
+            </div>
+          </div>
+
+          <div class="form-group mb-3">
             <label class="form-label">Contraseña</label>
             <input type="password" class="form-control" formControlName="password"
                    [class.is-invalid]="isFieldInvalid('password')">
@@ -79,12 +94,23 @@
           <div class="address-section p-3 rounded mb-3">
             <h5>Dirección</h5>
             <div class="form-group mb-3">
-              <label class="form-label">Provincia</label>
-              <input type="text" class="form-control" formControlName="provincia"
-                     [class.is-invalid]="isFieldInvalid('provincia')">
-              <div class="invalid-feedback">{{getErrorMessage('provincia')}}</div>
+              <label for="provincia" class="form-label">Provincia</label>
+              <select
+                class="form-select"
+                id="provincia"
+                formControlName="provincia"
+                [class.is-invalid]="isFieldInvalid('provincia')"
+              >
+                <option value="">Seleccione una provincia</option>
+                <option *ngFor="let provincia of provincias" [value]="provincia">
+                  {{provincia}}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('provincia')">
+                Debe seleccionar una provincia
+              </div>
             </div>
-
+            
             <div class="form-group mb-3">
               <label class="form-label">Cantón</label>
               <input type="text" class="form-control" formControlName="canton"

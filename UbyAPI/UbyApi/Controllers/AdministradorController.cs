@@ -32,6 +32,24 @@ namespace UbyApi.Controllers
                 return StatusCode(500, new { message = "Error al obtener administradores", error = ex.Message });
             }
         }
+        
+         // GET: api/Administrador
+        [HttpGet("AdminComercio")]
+        public async Task<ActionResult<IEnumerable<AdministradorItem>>> GetAdministradorComercio()
+        {
+            try
+            {
+                var resultados = await _context.Administrador
+                    .FromSqlRaw("SELECT * FROM vista_admin_comercio")
+                    .ToListAsync();
+
+                return Ok(resultados);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error al obtener administradores", error = ex.Message });
+            }
+        }
 
         // GET: api/Administrador/5
         [HttpGet("{cedula}")]

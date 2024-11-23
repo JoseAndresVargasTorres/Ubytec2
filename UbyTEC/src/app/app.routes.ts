@@ -22,30 +22,31 @@ import { RecepcionPedidoComponent } from './client/pages/recepcion-pedido/recepc
 import { FeedbackComponent } from './client/pages/feedback/feedback.component';
 import { ProfileClientComponent } from './client/components/profile-client/profile-client.component';
 import { ReportesAfiliadosComponent } from './admin/pages/reportes-afiliados/reportes-afiliados.component';
-
+import { EdicionAdministradorComponent } from './affiliate/pages/edicion-administrador/edicion-administrador.component';
 
 export const routes: Routes = [
-
-  {path: "", component:LoginComponent},
-  {path: "header",component:HeaderAdminComponent},
-  {path:"gestion-administradores",component:GestionarAdministradoresComponent},
-  {path:"gestion-afiliaciones",component:GestionarAfiliacionesComponent},
-  {path:"gestion-afiliados",component:GestionarAfiliadosComponent},
-  {path:"gestion-repartidores",component:GestionarRepartidoresComponent},
-  {path:"gestion-tiposcomercio",component:GestionarTiposdeComercioComponent},
-  {path:"headerclient",component:HeaderClientComponent},
-  {path:"gestion-clientes",component:GestionClientesComponent},
-  {path:"entrar-comercios", component:EntrarComercioComponent},
-  {path:"carrito",component:AdministrarCarritoComponent},
-  {path:"realizar-pedido",component:RealizarPedidoComponent},
-  {path:"ultimas-compras", component:UltimasComprasComponent},
-  {path:"recepcion-pedidos",component:RecepcionPedidoComponent},
-  {path:"feedback",component:FeedbackComponent},
-  {path:"perfil-cliente",component:ProfileClientComponent},
-  {path:"solicitud-afiliaciones", component:SolicitudAfiliacionComponent},
-  {path:"gestion-productos", component:GestionProductosComponent},
-  {path:"gestion-pedidos", component:GestionPedidosComponent},
-  {path:"gestion-administrador", component:GestionAdministradorComponent},
-  {path:"reportes-consolidado",component:ReportesConsolidadoVentasComponent},
-  {path:"reportes-afiliado",component:ReportesAfiliadosComponent}
+  {path: "", component: LoginComponent},
+  {path: "header", component: HeaderAdminComponent},
+  {path: "gestion-administradores", component: GestionarAdministradoresComponent},
+  {path: "gestion-afiliaciones", component: GestionarAfiliacionesComponent},
+  {path: "gestion-afiliados", component: GestionarAfiliadosComponent},
+  {path: "gestion-repartidores", component: GestionarRepartidoresComponent},
+  {path: "gestion-tiposcomercio", component: GestionarTiposdeComercioComponent},
+  {path: "reportes-ventas", component: ReportesConsolidadoVentasComponent},
+  {path: "reportes-consolidado", component: ReportesConsolidadoVentasComponent},
+  {path: "reportes-afiliado", component: ReportesAfiliadosComponent},
+  {path: "headerclient", component: HeaderClientComponent},
+  {path: "gestion-clientes", component: GestionClientesComponent},
+  {path: "entrar-comercios", component: EntrarComercioComponent},
+  {path: "carrito", component: AdministrarCarritoComponent},
+  {path: "realizar-pedido", component: RealizarPedidoComponent},
+  {path: "ultimas-compras", component: UltimasComprasComponent},
+  {path: "recepcion-pedidos", component: RecepcionPedidoComponent},
+  {path: "feedback", component: FeedbackComponent},
+  {path: "perfil-cliente", component: ProfileClientComponent},
+  {path: "solicitud-afiliaciones", component: SolicitudAfiliacionComponent},
+  {path: "gestion-productos", component: GestionProductosComponent},
+  {path: "gestion-pedidos", component: GestionPedidosComponent},
+  {path: "gestion-administrador", component: GestionAdministradorComponent},
+  {path: "edicion-administrador", component: EdicionAdministradorComponent}
 ];
