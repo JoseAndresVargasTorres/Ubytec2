@@ -1,26 +1,31 @@
-# Usa la imagen de Node.js como base para la construcción
-FROM node:20 AS build
-
-# Configura el directorio de trabajo
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copia los archivos de configuración de npm
-COPY package*.json ./
+# Copy and restore dependencies
+COPY *.csproj .
+RUN dotnet restore
 
-# Instala las dependencias
-RUN npm install
-
-# Copia los archivos del proyecto
+# Copy and build the application
 COPY . .
+RUN dotnet publish -c Release -o out
 
-# Construye el proyecto de Angular en modo desarrollo usando la configuración de desarrollo
-RUN npx ng build --configuration=development
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
 
-# Usa una imagen ligera de Nginx para servir la aplicación
-FROM nginx:alpine
+# Copy the built application from the build stage
+COPY --from=build /app/out/ .
 
-# Copia los archivos construidos de Angular desde la etapa de construcción
-COPY --from=build /app/dist/uby-tec/browser /usr/share/nginx/html
+# Set the URL for the application to listen on port 80
+ENV ASPNETCORE_URLS=http://+:80
 
-# Expone el puerto 80 para acceder a la aplicación
-EXPOSE 80
+# Set the environment variable
+ENV ASPNETCORE_ENVIRONMENT=Development
+
+EXPOSE 80 
+
+# Run the application
+ENTRYPOINT ["dotnet", "UbyApi.dll"]
+
+CMD ["bundle",  "exec", "rails", "server", "-e", "production"]
