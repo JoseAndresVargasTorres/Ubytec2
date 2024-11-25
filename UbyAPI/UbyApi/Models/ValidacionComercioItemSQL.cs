@@ -5,9 +5,9 @@ public class ValidacionComercioItemSQL
 {
     [Key]
     [StringLength(20)]
-    public required string CedulaComercio { get; set; }
+    public required string Cedula_Comercio { get; set; }
 
-    public required int CedulaAdmin { get; set; }
+    public required int Cedula_Admin { get; set; }
 
     [Required]
     [StringLength(50)]

@@ -24,14 +24,14 @@ namespace UbyApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ValidacionComercioItemSQL>>> GetValidacionesComercio()
         {
-            return await _context.ValidacionesComercio.ToListAsync();
+            return await _context.ValidacionComercio.ToListAsync();
         }
 
         // GET: api/ValidacionComercioControllerSQL/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ValidacionComercioItemSQL>> GetValidacionComercioItemSQL(string id)
         {
-            var validacionComercioItemSQL = await _context.ValidacionesComercio.FindAsync(id);
+            var validacionComercioItemSQL = await _context.ValidacionComercio.FindAsync(id);
 
             if (validacionComercioItemSQL == null)
             {
@@ -46,7 +46,7 @@ namespace UbyApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutValidacionComercioItemSQL(string id, ValidacionComercioItemSQL validacionComercioItemSQL)
         {
-            if (id != validacionComercioItemSQL.CedulaComercio)
+            if (id != validacionComercioItemSQL.Cedula_Comercio)
             {
                 return BadRequest();
             }
@@ -77,14 +77,14 @@ namespace UbyApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ValidacionComercioItemSQL>> PostValidacionComercioItemSQL(ValidacionComercioItemSQL validacionComercioItemSQL)
         {
-            _context.ValidacionesComercio.Add(validacionComercioItemSQL);
+            _context.ValidacionComercio.Add(validacionComercioItemSQL);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (ValidacionComercioItemSQLExists(validacionComercioItemSQL.CedulaComercio))
+                if (ValidacionComercioItemSQLExists(validacionComercioItemSQL.Cedula_Comercio))
                 {
                     return Conflict();
                 }
@@ -94,20 +94,20 @@ namespace UbyApi.Controllers
                 }
             }
 
-            return CreatedAtAction("GetValidacionComercioItemSQL", new { id = validacionComercioItemSQL.CedulaComercio }, validacionComercioItemSQL);
+            return CreatedAtAction("GetValidacionComercioItemSQL", new { id = validacionComercioItemSQL.Cedula_Comercio }, validacionComercioItemSQL);
         }
 
         // DELETE: api/ValidacionComercioControllerSQL/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteValidacionComercioItemSQL(string id)
         {
-            var validacionComercioItemSQL = await _context.ValidacionesComercio.FindAsync(id);
+            var validacionComercioItemSQL = await _context.ValidacionComercio.FindAsync(id);
             if (validacionComercioItemSQL == null)
             {
                 return NotFound();
             }
 
-            _context.ValidacionesComercio.Remove(validacionComercioItemSQL);
+            _context.ValidacionComercio.Remove(validacionComercioItemSQL);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -115,7 +115,7 @@ namespace UbyApi.Controllers
 
         private bool ValidacionComercioItemSQLExists(string id)
         {
-            return _context.ValidacionesComercio.Any(e => e.CedulaComercio == id);
+            return _context.ValidacionComercio.Any(e => e.Cedula_Comercio == id);
         }
     }
 }

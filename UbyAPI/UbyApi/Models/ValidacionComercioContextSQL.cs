@@ -7,14 +7,14 @@ public class ValidacionComercioContextSQL : DbContext
     {
     }
 
-    public DbSet<ValidacionComercioItemSQL> ValidacionesComercio { get; set; } = null!;
+    public DbSet<ValidacionComercioItemSQL> ValidacionComercio { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<ValidacionComercioItemSQL>()
-            .HasKey(vc => vc.CedulaComercio);
+            .HasKey(vc => vc.Cedula_Comercio);
 
     }
 }

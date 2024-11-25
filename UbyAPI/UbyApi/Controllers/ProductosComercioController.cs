@@ -28,10 +28,10 @@ namespace UbyApi.Controllers
         }
 
         // GET: api/ProductosComercio/5
-        [HttpGet("{id_producto}")]
-        public async Task<ActionResult<IEnumerable<ProductosComercioItem>>> GetProductosComercioItem(int id_producto)
+        [HttpGet("{cedula_comercio}")]
+        public async Task<ActionResult<IEnumerable<ProductosComercioItem>>> GetProductosComercioItem(string cedula_comercio)
         {
-             var result = await _context.ProductosComercio.FromSqlRaw("EXEC ObtenerProductosPorId @id_prod = {0}", id_producto).ToListAsync();
+             var result = await _context.ProductosComercio.FromSqlRaw("EXEC ObtenerProductoPorComercio @cedula_comercio = {0}", cedula_comercio).ToListAsync();
 
             if (result == null || !result.Any())
             {
@@ -93,8 +93,7 @@ namespace UbyApi.Controllers
                     throw;
                 }
             }
-
-            return CreatedAtAction("GetProductosComercioItem", new { id = productosComercioItem.Cedula_Comercio }, productosComercioItem);
+            return CreatedAtAction("GetProductosComercioItem", new { cedula_comercio = productosComercioItem.Cedula_Comercio }, productosComercioItem);
         }
 
         // DELETE: api/ProductosComercio/5
