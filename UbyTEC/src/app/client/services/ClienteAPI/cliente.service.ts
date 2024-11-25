@@ -9,9 +9,9 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ClienteService {
-  private apiUrlCliente = 'https://ubyapi-1016717342490.us-central1.run.app/api/Cliente/';
-  private apiUrlDireccion = 'https://ubyapi-1016717342490.us-central1.run.app/api/DireccionCliente/';
-  private apiUrlTelefono = 'https://ubyapi-1016717342490.us-central1.run.app/api/TelefonoCliente/';
+  private apiUrlCliente = 'http://localhost:5037/api/Cliente/';
+  private apiUrlDireccion = 'http://localhost:5037/api/DireccionCliente/';
+  private apiUrlTelefono = 'http://localhost:5037/api/TelefonoCliente/';
 
   private httpOptions = {
     headers: new HttpHeaders({

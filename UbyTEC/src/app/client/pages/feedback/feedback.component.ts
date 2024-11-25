@@ -1,70 +1,30 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, NgModule, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { HeaderClientComponent } from '../../components/header-client/header-client.component';
-import { PedidosCliente, Pedido, Repartidor, ComercioAfiliado } from '../../interfaces/allinterfaces';
+import { PedidosCliente, Pedido, Repartidor, ComercioAfiliado, PedidosClienteSQL } from '../../interfaces/allinterfaces';
 import Swal from 'sweetalert2';
-
-interface FeedbackData {
-  id: string;
-  numPedido: number;
-  cedulaCliente: number;
-  feedback: string;
-}
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-feedback',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    HeaderClientComponent,
-    RouterModule
+    HeaderClientComponent,CommonModule,ReactiveFormsModule,
   ],
   templateUrl: './feedback.component.html',
   styleUrls: ['./feedback.component.css']
 })
 export class FeedbackComponent implements OnInit {
-  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
-  private readonly MOCK_DELAY = 800;
+  private readonly apiUrl = 'http://localhost:5037/api/';
 
   feedbackForm: FormGroup;
   pedidoActual: Pedido | null = null;
   repartidor: Repartidor | null = null;
   comercio: ComercioAfiliado | null = null;
   cargando = false;
-  usarDatosPrueba = true;
   errorMessage: string | null = null;
-
-  private readonly mockPedido: Pedido = {
-    num_Pedido: 123456,
-    nombre: "Pedido Express",
-    estado: "Entregado",
-    monto_Total: 25000,
-    id_Repartidor: 1,
-    cedula_Comercio: "3001123456"
-  };
-
-  private readonly mockRepartidor: Repartidor = {
-    id: 1,
-    usuario: "repartidor1",
-    nombre: "Juan",
-    password: "****",
-    apellido1: "Pérez",
-    apellido2: "Mora",
-    correo: "juan.perez@email.com"
-  };
-
-  private readonly mockComercio: ComercioAfiliado = {
-    cedula_Juridica: "3001123456",
-    nombre: "Restaurante El Buen Sabor",
-    correo: "buensabor@email.com",
-    sinpe: "88776655",
-    id_Tipo: 1,
-    cedula_Admin: 123456789
-  };
 
   constructor(
     private formBuilder: FormBuilder,
@@ -72,66 +32,41 @@ export class FeedbackComponent implements OnInit {
     private router: Router
   ) {
     this.feedbackForm = this.formBuilder.group({
-      feedbackComercio: ['', [Validators.required, Validators.minLength(10)]],
-      feedbackRepartidor: ['', [Validators.required, Validators.minLength(10)]],
-      feedbackGeneral: ['', [Validators.required, Validators.minLength(10)]]
+      feedback: ['', [Validators.required, Validators.minLength(10)]]
     });
   }
 
   ngOnInit(): void {
-    this.inicializarComponente();
+    this.cargarDatosPedido();
   }
 
-  private async inicializarComponente(): Promise<void> {
+  private async cargarDatosPedido(): Promise<void> {
     try {
       this.cargando = true;
-      await this.inicializarModoData();
-      await this.cargarDatosPedido();
+      const numPedido = sessionStorage.getItem('pedido_actual');
+
+      if (!numPedido) {
+        throw new Error('No se encontró el número de pedido');
+      }
+
+      const pedidoResponse = await this.http.get<Pedido>(
+        `${this.apiUrl}Pedido/${numPedido}`
+      ).toPromise();
+
+      if (!pedidoResponse) {
+        throw new Error('No se pudo cargar el pedido');
+      }
+
+      this.pedidoActual = pedidoResponse;
+
+      await Promise.all([
+        this.cargarDatosRepartidor(pedidoResponse.id_Repartidor),
+        this.cargarDatosComercio(pedidoResponse.cedula_Comercio)
+      ]);
     } catch (error) {
       this.manejarError(error);
     } finally {
       this.cargando = false;
-    }
-  }
-
-  private async inicializarModoData(): Promise<void> {
-    try {
-      const apiDisponible = await this.verificarDisponibilidadAPI();
-      this.usarDatosPrueba = !apiDisponible;
-    } catch (error) {
-      this.manejarError(error);
-      this.usarDatosPrueba = true;
-    }
-  }
-
-  private async cargarDatosPedido(): Promise<void> {
-    if (this.usarDatosPrueba) {
-      await this.simularDelay();
-      this.pedidoActual = this.mockPedido;
-      this.repartidor = this.mockRepartidor;
-      this.comercio = this.mockComercio;
-    } else {
-      try {
-        const numPedido = sessionStorage.getItem('pedido_actual');
-        if (numPedido) {
-          const pedidoResponse = await this.http.get<Pedido>(
-            `${this.apiUrl}Pedido/${numPedido}`
-          ).toPromise();
-
-          if (pedidoResponse) {
-            this.pedidoActual = pedidoResponse;
-            await Promise.all([
-              this.cargarDatosRepartidor(pedidoResponse.id_Repartidor),
-              this.cargarDatosComercio(pedidoResponse.cedula_Comercio)
-            ]);
-          }
-        }
-      } catch (error) {
-        this.manejarError(error);
-        this.pedidoActual = this.mockPedido;
-        this.repartidor = this.mockRepartidor;
-        this.comercio = this.mockComercio;
-      }
     }
   }
 
@@ -151,29 +86,37 @@ export class FeedbackComponent implements OnInit {
 
   async enviarFeedback(): Promise<void> {
     if (this.feedbackForm.invalid) {
-      this.mostrarError('Por favor complete todos los campos correctamente');
+      this.mostrarError('Por favor ingrese un comentario de al menos 10 caracteres');
       return;
     }
 
     try {
       this.cargando = true;
+      const userData = localStorage.getItem('loggedInUser');
+      if (!userData) {
+        throw new Error('No se encontró información del usuario');
+      }
+      const cliente = JSON.parse(userData);
 
-      const feedbackData: FeedbackData = {
-        id: Date.now().toString(),
-        numPedido: this.pedidoActual?.num_Pedido || 0,
-        cedulaCliente: 123456789, // Obtener de sesión en implementación real
-        feedback: JSON.stringify({
-          comercio: this.feedbackForm.value.feedbackComercio,
-          repartidor: this.feedbackForm.value.feedbackRepartidor,
-          general: this.feedbackForm.value.feedbackGeneral
-        })
+      if (!this.pedidoActual) {
+        throw new Error('No se encontró información del pedido');
+      }
+
+      const feedbackMongo: PedidosCliente = {
+        numPedido: this.pedidoActual.num_Pedido,
+        cedulaCliente: cliente.cedula,
+        feedback: this.feedbackForm.value.feedback
       };
 
-      if (!this.usarDatosPrueba) {
-        await this.http.post(`${this.apiUrl}PedidosCliente`, feedbackData).toPromise();
-      } else {
-        await this.simularDelay();
-      }
+      const feedbackSQL: PedidosClienteSQL = {
+        numPedido: this.pedidoActual.num_Pedido,
+        cedulaCliente: cliente.cedula,
+      };
+
+      await Promise.all([
+        this.http.post(`${this.apiUrl}PedidosCliente`, feedbackMongo).toPromise(),
+        this.http.post(`${this.apiUrl}PedidosClienteControllerSQL`, feedbackSQL).toPromise()
+      ]);
 
       await Swal.fire({
         icon: 'success',
@@ -182,7 +125,8 @@ export class FeedbackComponent implements OnInit {
         confirmButtonText: 'Aceptar'
       });
 
-      this.router.navigate(['/']);
+      sessionStorage.removeItem('pedido_actual');
+      this.router.navigate(['/entrar-comercios']);
     } catch (error) {
       this.manejarError(error);
     } finally {
@@ -190,51 +134,11 @@ export class FeedbackComponent implements OnInit {
     }
   }
 
-  private verificarDisponibilidadAPI(): Promise<boolean> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}health-check`).subscribe({
-        next: () => resolve(true),
-        error: () => resolve(false)
-      });
-    });
-  }
-
-  private async simularDelay(): Promise<void> {
-    if (this.usarDatosPrueba) {
-      await new Promise(resolve => setTimeout(resolve, this.MOCK_DELAY));
-    }
-  }
-
-  toggleModoData(): void {
-    this.usarDatosPrueba = !this.usarDatosPrueba;
-    this.mostrarNotificacion(
-      `Usando ${this.usarDatosPrueba ? 'datos de prueba' : 'datos de la API'}`,
-      'info'
-    );
-    this.inicializarComponente();
-  }
-
   private manejarError(error: any): void {
     console.error('Error:', error);
-    let mensaje = 'Ha ocurrido un error inesperado';
-
-    if (error instanceof HttpErrorResponse) {
-      mensaje = error.error?.message || error.message || mensaje;
-    }
-
+    const mensaje = error.error?.message || error.message || 'Ha ocurrido un error inesperado';
     this.errorMessage = mensaje;
     this.mostrarError(mensaje);
-  }
-
-  private mostrarNotificacion(mensaje: string, tipo: 'success' | 'error' | 'info'): void {
-    Swal.fire({
-      text: mensaje,
-      icon: tipo,
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
   }
 
   private mostrarError(mensaje: string): void {
@@ -248,5 +152,14 @@ export class FeedbackComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.errorMessage = null;
+  }
+
+
+  navigateToMainPage() {
+    this.router.navigate(['/entrar-comercios']);
+  }
+
+  onSubmitFeedback() {
+    this.enviarFeedback();
   }
 }

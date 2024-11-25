@@ -4,100 +4,89 @@
 
 <div class="page-container">
   <div class="container animated fadeIn">
-    <!-- Loading spinner -->
-    <div *ngIf="cargando" class="loading-overlay">
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" *ngIf="cargando">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Cargando...</span>
       </div>
     </div>
 
-    <!-- Error message -->
-    <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+    <!-- Error Message -->
+    <div class="alert alert-danger mt-3" *ngIf="errorMessage" role="alert">
       {{ errorMessage }}
     </div>
 
+    <!-- Main Content -->
     <div class="row justify-content-center mt-4">
       <div class="col-12">
         <div class="card">
           <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Detalles del Pedido</h5>
+            <h5 class="mb-0">Detalles de Pedidos</h5>
           </div>
+
           <div class="card-body">
-            <!-- Sin datos del pedido -->
-            <div *ngIf="!pedidoActual" class="alert alert-warning">
-              No se encontraron datos del pedido
+            <div *ngIf="pedidos.length === 0" class="alert alert-warning">
+              No se encontraron datos de pedidos
             </div>
 
-            <!-- Detalles del Pedido -->
-            <div *ngIf="pedidoActual" class="mb-4">
-              <h6 class="border-bottom pb-2">Información del Pedido</h6>
-              <div class="row">
-                <div class="col-md-6">
-                  <p><strong>Número de Pedido:</strong> #{{ pedidoActual.num_Pedido }}</p>
-                  <p><strong>Estado:</strong>
-                    <span [ngClass]="{
-                      'badge bg-warning': pedidoActual.estado === 'En camino',
-                      'badge bg-success': pedidoActual.estado === 'Finalizado',
-                      'badge bg-info': pedidoActual.estado === 'Nuevo'
-                    }">{{ pedidoActual.estado }}</span>
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <p><strong>Monto Total:</strong> ₡{{ pedidoActual.monto_Total | number:'1.0-0' }}</p>
-                  <p><strong>Comercio:</strong> {{ pedidoActual.cedula_Comercio }}</p>
+            <div *ngFor="let pedidoDetalle of pedidos" class="pedido-card mb-4">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="border-bottom pb-2">Información del Pedido #{{pedidoDetalle.pedido.num_Pedido}}</h6>
+
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <p><strong>Estado:</strong>
+                        <span [ngClass]="{
+                          'badge bg-warning': pedidoDetalle.pedido.estado === 'En camino',
+                          'badge bg-success': pedidoDetalle.pedido.estado === 'Finalizado',
+                          'badge bg-info': pedidoDetalle.pedido.estado === 'Nuevo'
+                        }">
+                          {{pedidoDetalle.pedido.estado}}
+                        </span>
+                      </p>
+                    </div>
+                    <div class="col-md-6">
+                      <p><strong>Monto Total:</strong> ₡{{pedidoDetalle.pedido.monto_Total | number:'1.0-0'}}</p>
+                      <p><strong>Comercio:</strong> {{pedidoDetalle.pedido.cedula_Comercio}}</p>
+                    </div>
+                  </div>
+
+                  <div *ngIf="pedidoDetalle.repartidor" class="mb-3">
+                    <h6 class="border-bottom pb-2">Información del Repartidor</h6>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <p><strong>Nombre:</strong> {{pedidoDetalle.repartidor.nombre}}
+                           {{pedidoDetalle.repartidor.apellido1}} {{pedidoDetalle.repartidor.apellido2}}</p>
+                        <p><strong>Usuario:</strong> {{pedidoDetalle.repartidor.usuario}}</p>
+                      </div>
+                      <div class="col-md-6">
+                        <p><strong>Correo:</strong> {{pedidoDetalle.repartidor.correo}}</p>
+                        <p><strong>Estado:</strong> {{pedidoDetalle.repartidor.disponible}}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="pedidoDetalle.direccionPedido" class="mb-3">
+                    <h6 class="border-bottom pb-2">Dirección de Entrega</h6>
+                    <p>{{pedidoDetalle.direccionPedido.provincia}},
+                       {{pedidoDetalle.direccionPedido.canton}},
+                       {{pedidoDetalle.direccionPedido.distrito}}</p>
+                  </div>
+
+                  <div class="d-flex justify-content-end mt-3">
+                    <button class="btn btn-primary"
+                            [disabled]="pedidoDetalle.pedido.estado === 'Finalizado'"
+                            (click)="confirmarRecepcion(pedidoDetalle.pedido.num_Pedido, pedidoDetalle.pedido.id_Repartidor)">
+                      Confirmar Recepción
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Detalles del Repartidor -->
-            <div *ngIf="repartidor" class="mb-4">
-              <h6 class="border-bottom pb-2">Información del Repartidor</h6>
-              <div class="row">
-                <div class="col-md-6">
-                  <p><strong>Nombre:</strong> {{ repartidor.nombre }} {{ repartidor.apellido1 }} {{ repartidor.apellido2 }}</p>
-                  <p><strong>Usuario:</strong> {{ repartidor.usuario }}</p>
-                </div>
-                <div class="col-md-6">
-                  <p><strong>Correo:</strong> {{ repartidor.correo }}</p>
-                  <p><strong>Estado:</strong>
-                    <span [ngClass]="{'text-success': repartidor.disponible, 'text-warning': !repartidor.disponible}">
-                      {{ repartidor.disponible ? 'Disponible' : 'No Disponible' }}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dirección del Pedido -->
-            <div *ngIf="direccionPedido" class="mb-4">
-              <h6 class="border-bottom pb-2">Dirección de Entrega</h6>
-              <p>
-                {{ direccionPedido.provincia }},
-                {{ direccionPedido.canton }},
-                {{ direccionPedido.distrito }}
-              </p>
-            </div>
-
-            <!-- Feedback del Cliente -->
-            <div *ngIf="pedidoCliente" class="mb-4">
-              <h6 class="border-bottom pb-2">Feedback del Cliente</h6>
-              <p *ngIf="pedidoCliente.feedback">{{ pedidoCliente.feedback }}</p>
-              <p *ngIf="!pedidoCliente.feedback" class="text-muted">Sin feedback todavía</p>
-            </div>
-
-            <!-- Botones de Acción -->
-            <div class="d-flex justify-content-end mt-4">
-              <button
-                class="btn btn-secondary me-2"
-                routerLink="/">
-                Volver
-              </button>
-              <button
-                class="btn btn-primary"
-                (click)="confirmarRecepcion()"
-                [disabled]="cargando || !pedidoActual || !repartidor">
-                Confirmar Recepción
-              </button>
+            <div class="d-flex justify-content-start mt-4">
+              <button class="btn btn-secondary" (click)="volver()">Volver</button>
             </div>
           </div>
         </div>

@@ -32,7 +32,7 @@ interface CarritoState {
   styleUrls: ['./entrar-comercio.component.css']
 })
 export class EntrarComercioComponent implements OnInit {
-  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
+  private readonly apiUrl = 'http://localhost:5037/api/';
   private readonly MAX_CANTIDAD = 99;
   private readonly MIN_CANTIDAD = 1;
   private tiposComercio: { [key: number]: string } = {};
@@ -372,7 +372,7 @@ export class EntrarComercioComponent implements OnInit {
     });
   }
 
- 
+
 
   async guardarYNavegar(): Promise<void> {
     try {

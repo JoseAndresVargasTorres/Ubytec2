@@ -10,7 +10,7 @@ export class TipoComercioService {
 
   constructor(private http: HttpClient) { }
 
-  private apiUrltipoComercio =  'https://ubyapi-1016717342490.us-central1.run.app/api/TipoComercio/';;
+  private apiUrltipoComercio =  'http://localhost:5037/api/TipoComercio/';;
 
    // Obtener todos los tipos de comercio
    getTiposdeComercio(): Observable<Tipo_Comercio[]> {

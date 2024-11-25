@@ -35,7 +35,7 @@ interface CarritoState {
   styleUrls: ['./administrar-carrito.component.css']
 })
 export class AdministrarCarritoComponent implements OnInit {
-  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
+  private readonly apiUrl = 'http://localhost:5037/api/';
   private readonly MAX_CANTIDAD = 99;
   private readonly MIN_CANTIDAD = 1;
   private readonly MOCK_DELAY = 800;

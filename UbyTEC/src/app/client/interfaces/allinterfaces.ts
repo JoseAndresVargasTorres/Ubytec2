@@ -83,11 +83,18 @@ export interface Pedido {
 
 // PedidosCliente.ts
 export interface PedidosCliente {
-  id: string;
   numPedido: number;
   cedulaCliente: number;
   feedback: string;
 }
+
+export interface PedidosClienteSQL {
+  numPedido: number;
+  cedulaCliente: number;
+}
+
+
+
 
 // Producto.ts
 export interface Producto {

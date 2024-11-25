@@ -26,7 +26,7 @@ export class ReportesConsolidadoVentasComponent implements OnInit {
   impresoPor: string = 'Usuario Actual';
   isLoading: boolean = false;
   error: string | null = null;
-  private apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/ReporteConsolidado';
+  private apiUrl = 'http://localhost:5037/api/ReporteConsolidado';
 
   constructor(private http: HttpClient) {}
 

@@ -14,6 +14,11 @@ interface TotalesPedido {
   total: number;
 }
 
+interface PedidosClienteSQL {
+  num_Pedido: number;
+  cedula_Cliente: number;
+}
+
 @Component({
   selector: 'app-realizar-pedido',
   standalone: true,
@@ -29,7 +34,6 @@ interface TotalesPedido {
 })
 export class RealizarPedidoComponent implements OnInit {
   private readonly apiUrl = 'http://localhost:5037/api/';
-
 
   tarjetaForm: FormGroup;
   totales: TotalesPedido | null = null;
@@ -151,6 +155,16 @@ export class RealizarPedidoComponent implements OnInit {
       }
 
       console.log("Respuesta del servidor:", response);
+
+      // Crear registro en PedidosClienteSQL
+      let pedidosClienteSQL: PedidosClienteSQL = {
+        num_Pedido: response.num_Pedido,
+        cedula_Cliente: userData.cedula
+      };
+
+      console.log("Enviando registro a PedidosClienteSQL:", pedidosClienteSQL);
+
+      await this.http.post(`${this.apiUrl}PedidosClienteControllerSQL`, pedidosClienteSQL).toPromise();
 
       // Procesar productos del pedido
       let cartItemsStr = localStorage.getItem('carrito');
