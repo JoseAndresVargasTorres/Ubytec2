@@ -30,6 +30,7 @@ interface TotalesPedido {
 export class RealizarPedidoComponent implements OnInit {
   private readonly apiUrl = 'http://localhost:5037/api/';
 
+
   tarjetaForm: FormGroup;
   totales: TotalesPedido | null = null;
   cargando = false;

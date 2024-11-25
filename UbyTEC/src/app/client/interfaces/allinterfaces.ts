@@ -161,8 +161,15 @@ export interface TipoComercio {
 
 // ValidacionComercio.ts
 export interface ValidacionComercio {
-  id: string;
   cedulaComercio: string;
   comentario: string;
   estado: string;
 }
+
+// ValidacionComercioSQL.ts
+export interface ValidacionComercioControllerSQL {
+  cedula_Comercio: string;
+  cedula_Admin: number;
+  estado: string;
+}
+

@@ -7,6 +7,7 @@ import { GestionAdministradorComponent } from '../gestion-administrador/gestion-
 import { NgFor, NgIf } from '@angular/common';
 import { concat } from 'rxjs';
 import { EmailService } from '../../../Services/Email/email.service';
+import { AuthService } from '../../../Services/auth/auth.service';
 import { TipoComercioService } from '../../../admin/services/ServicioTipoComercio/tipo-comercio.service';
 import {
   TipoComercio,
@@ -15,7 +16,9 @@ import {
   TelefonoComercio,
   Administrador,
   DireccionAdministrador,
-  TelefonoAdmin
+  TelefonoAdmin,
+  ValidacionComercio,
+  ValidacionComercioControllerSQL
 } from '../../../client/interfaces/allinterfaces';
 
 
@@ -69,8 +72,7 @@ export class SolicitudAfiliacionComponent implements OnInit {
   constructor(private api: ApiService,
               private router:Router, private dialog: MatDialog,
               private email_service: EmailService,
-              private tipoComercioService: TipoComercioService
-
+              private tipoComercioService: TipoComercioService,
               ){}
 
    ngOnInit() {
@@ -79,7 +81,7 @@ export class SolicitudAfiliacionComponent implements OnInit {
 
   private cargarTiposComercio() {
     this.loading = true;
-    this.tipoComercioService.getTiposdeComercio().subscribe({
+    this.api.getData('TipoComercio').subscribe({
       next: (tipos) => {
         this.tiposComercio = tipos;
         this.loading = false;
@@ -197,13 +199,27 @@ export class SolicitudAfiliacionComponent implements OnInit {
       password: new_password
     };
 
+    const validacion: ValidacionComercio = {
+      cedulaComercio: this.formData.cedula_Juridica,
+      comentario: "...",
+      estado: "no aprobado"
+    } 
+
+    const validacion2: ValidacionComercioControllerSQL = {
+      cedula_Admin: this.admin.cedula,
+      cedula_Comercio: this.formData.cedula_Juridica,
+      estado: "Pendiente"
+    }
+
     const apiCalls = [
       this.api.postData("Administrador", JSON.stringify(administrador)),
       this.api.postData("DireccionAdministrador", JSON.stringify(direccionAdmin)),
       this.api.postData("TelefonoAdmin", JSON.stringify(telefonosAdmin)),
       this.api.postData("ComercioAfiliado", JSON.stringify(comercioAfiliado)),
       this.api.postData("DireccionComercio", JSON.stringify(direccionComercio)),
-      this.api.postData("TelefonoComercio", JSON.stringify(telefonosComercio))
+      this.api.postData("TelefonoComercio", JSON.stringify(telefonosComercio)),
+      this.api.postData("ValidacionComercio", JSON.stringify(validacion)),
+      this.api.postData("ValidacionComercioControllerSQL", JSON.stringify(validacion2))
     ];
 
     concat(...apiCalls).subscribe({

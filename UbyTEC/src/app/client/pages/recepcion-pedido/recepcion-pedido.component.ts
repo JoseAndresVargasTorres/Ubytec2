@@ -35,7 +35,7 @@ interface RecepcionPedidoResponse {
   styleUrls: ['./recepcion-pedido.component.css']
 })
 export class RecepcionPedidoComponent implements OnInit {
-  private readonly apiUrl = 'http://localhost:5037/api/';
+  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
 
   pedidoActual: Pedido | null = null;
   repartidor: Repartidor | null = null;
