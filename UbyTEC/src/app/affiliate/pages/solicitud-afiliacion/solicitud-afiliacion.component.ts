@@ -81,7 +81,7 @@ export class SolicitudAfiliacionComponent implements OnInit {
 
   private cargarTiposComercio() {
     this.loading = true;
-    this.tipoComercioService.getTiposdeComercio().subscribe({
+    this.api.getData('TipoComercio').subscribe({
       next: (tipos) => {
         this.tiposComercio = tipos;
         this.loading = false;
@@ -200,7 +200,6 @@ export class SolicitudAfiliacionComponent implements OnInit {
     };
 
     const validacion: ValidacionComercio = {
-      id: "5",
       cedulaComercio: this.formData.cedula_Juridica,
       comentario: "...",
       estado: "no aprobado"
@@ -209,7 +208,7 @@ export class SolicitudAfiliacionComponent implements OnInit {
     const validacion2: ValidacionComercioControllerSQL = {
       cedula_Admin: this.admin.cedula,
       cedula_Comercio: this.formData.cedula_Juridica,
-      estado: "no aprobado"
+      estado: "Pendiente"
     }
 
     const apiCalls = [

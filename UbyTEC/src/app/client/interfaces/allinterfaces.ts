@@ -161,7 +161,6 @@ export interface TipoComercio {
 
 // ValidacionComercio.ts
 export interface ValidacionComercio {
-  id: string;
   cedulaComercio: string;
   comentario: string;
   estado: string;
