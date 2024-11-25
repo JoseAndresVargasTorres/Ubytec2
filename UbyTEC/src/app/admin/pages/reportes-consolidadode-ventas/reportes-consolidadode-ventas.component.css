@@ -10,23 +10,21 @@
 }
 
 .report-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
 }
 
 .table-container {
   margin-bottom: 30px;
 }
 
-.report-footer {
-  margin-top: 20px;
-  font-size: 12px;
-  text-align: right;
-}
-
-.toggle-button {
-  margin-bottom: 20px;
+.table {
+  margin-top: 15px;
 }
 
 .table th {
@@ -34,8 +32,27 @@
 }
 
 .totals-row {
-  font-weight: bold;
   background-color: #f8f9fa;
 }
 
-/* Asegúrate de tener Bootstrap importado en tu archivo styles.css global */
+.report-footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.alert {
+  margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .table {
+    min-width: 700px;
+  }
+}

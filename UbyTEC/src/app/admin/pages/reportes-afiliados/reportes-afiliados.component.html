@@ -3,47 +3,56 @@
 </header>
 
 <div class="report-container">
-  <header>
-    <h1>UbyTec</h1>
-    <h2>Reporte Consolidado de Ventas</h2>
-  </header>
+  <div class="report-header">
+    <h2>Reporte de Ventas por Afiliado</h2>
+  </div>
 
-  <!-- <div class="controls">
-    <label>
-      <input type="checkbox" [(ngModel)]="useMockData" (change)="toggleDataSource()">
-      Usar datos de prueba
-    </label>
-  </div> -->
-
-  <table class="report-table">
-    <thead>
-      <tr>
-        <th>Afiliado</th>
-        <th>Compras</th>
-        <th>Monto Total</th>
-        <th>Monto Servicio</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let venta of reporteVentas">
-        <td>{{venta.afiliado}}</td>
-        <td class="number">{{venta.compras}}</td>
-        <td class="number">{{venta.montoTotal | number:'1.2-2'}}</td>
-        <td class="number">{{venta.montoServicio | number:'1.2-2'}}</td>
-      </tr>
-      <tr class="total-row">
-        <td>Total</td>
-        <td class="number">{{calculateTotals().totalCompras}}</td>
-        <td class="number">{{calculateTotals().totalMonto | number:'1.2-2'}}</td>
-        <td class="number">{{calculateTotals().totalServicio | number:'1.2-2'}}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <footer>
-    <div class="print-info">
-      <p>Impreso: {{fechaImpresion}}</p>
-      <p>Impreso Por: {{usuarioImpresion}}</p>
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
     </div>
-  </footer>
+    <p>Cargando datos...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+    <button class="btn btn-outline-danger ms-2" (click)="fetchReporteVentas()">Reintentar</button>
+  </div>
+
+  <!-- Sales Data Table -->
+  <div class="table-container" *ngIf="reporteVentas.length > 0">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Afiliado</th>
+          <th>Total Ventas</th>
+          <th>Monto Total</th>
+          <th>Monto Servicio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let venta of reporteVentas">
+          <td>{{ venta.afiliado }}</td>
+          <td>{{ venta.compras }}</td>
+          <td>{{ venta.monto_Total | number:'1.2-2' }}</td>
+          <td>{{ venta.monto_Servicio | number:'1.2-2' }}</td>
+        </tr>
+        <tr class="totals-row">
+          <td><strong>Total</strong></td>
+          <td><strong>{{ calculateTotals().totalCompras }}</strong></td>
+          <td><strong>{{ calculateTotals().totalMonto | number:'1.2-2' }}</strong></td>
+          <td><strong>{{ calculateTotals().totalServicio | number:'1.2-2' }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+
+  <div class="report-footer">
+    <p>Impreso: {{ fechaImpresion }}</p>
+    <p>Impreso Por: {{ usuarioImpresion }}</p>
+  </div>
 </div>

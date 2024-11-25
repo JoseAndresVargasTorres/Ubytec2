@@ -113,138 +113,166 @@ export class RealizarPedidoComponent implements OnInit {
     }
   }
 
+
   async procesarPago(): Promise<void> {
     if (this.tarjetaForm.invalid) {
       this.mostrarError('Por favor complete todos los campos correctamente');
       return;
     }
 
-    try {
-      let userDataStr = localStorage.getItem('loggedInUser');
-      console.log("userDataStr", userDataStr);
+    let pedido: Pedido = {
+      num_Pedido: 0,
+      nombre: '',
+      estado: 'Nuevo',
+      monto_Total: this.totales?.total || 0,
+      id_Repartidor: 1,
+      cedula_Comercio: ''
+    };
 
-      if (!userDataStr) {
-        throw new Error('No se encontró información del usuario');
-      }
+    
+    let response = await this.http.post<Pedido>(`${this.apiUrl}Pedido`, pedido).toPromise();
+    console.log("Respuesta del servidor:", response);
 
-      let userData = JSON.parse(userDataStr);
-      console.log("User data ", userData);
-      this.cargando = true;
-
-      let cartItems = localStorage.getItem('carrito');
-      if (!cartItems) {
+    if (response) {
+      // Procesar productos pedidos...
+      let cartItemsStr = localStorage.getItem('carrito');
+      if (!cartItemsStr) {
         throw new Error('No hay items en el carrito');
       }
 
-      let formValues = this.tarjetaForm.value;
-      let [month, year] = formValues.fecha_Vencimiento.split('/');
-      let fecha = new Date(2000 + parseInt(year), parseInt(month) - 1);
-      let fechaFormatted = fecha.toISOString().split('T')[0];
+      try {
+        let userDataStr = localStorage.getItem('loggedInUser');
+        console.log("userDataStr", userDataStr);
 
-      let tarjetaData: TarjetaCredito = {
-        numero_Tarjeta: formValues.numero_Tarjeta,
-        fecha_Vencimiento: fechaFormatted,
-        cvv: formValues.cvv,
-        cedula_Cliente: userData.cedula
-      };
-
-      console.log("Sending tarjetaData:", tarjetaData);
-
-      if (!this.usarDatosPrueba) {
-        await this.http.post(`${this.apiUrl}TarjetaCredito`, tarjetaData).toPromise();
-        let comercioId = sessionStorage.getItem('comercio_id');
-
-        // Validar que existe el comercio
-        if (!comercioId) {
-          throw new Error('No se encontró el ID del comercio');
+        if (!userDataStr) {
+          throw new Error('No se encontró información del usuario');
         }
 
-        // Verificar que el comercio existe antes de crear el pedido
-        try {
-          await this.http.get(`${this.apiUrl}ComercioAfiliado/${comercioId}`).toPromise();
-        } catch (error) {
-          throw new Error(`El comercio con ID ${comercioId} no existe`);
+        let userData = JSON.parse(userDataStr);
+        console.log("User data ", userData);
+        this.cargando = true;
+
+        let cartItems = localStorage.getItem('carrito');
+        if (!cartItems) {
+          throw new Error('No hay items en el carrito');
         }
 
-        let pedidosResponse = await this.http.get<Pedido[]>(`${this.apiUrl}Pedido`).toPromise();
-        let ultimoNumPedido = pedidosResponse ? Math.max(...pedidosResponse.map(p => p.num_Pedido), 0) : 0;
-        let siguienteNumPedido = ultimoNumPedido + 1;
+        let formValues = this.tarjetaForm.value;
+        let [month, year] = formValues.fecha_Vencimiento.split('/');
+        let fecha = new Date(2000 + parseInt(year), parseInt(month) - 1);
+        let fechaFormatted = fecha.toISOString().split('T')[0];
 
-        let pedido: Pedido = {
-          num_Pedido: siguienteNumPedido,
-          nombre: `Pedido ${siguienteNumPedido}`,
-          estado: "Nuevo",
-          monto_Total: this.totales?.total || 0,
-          id_Repartidor: 1,
-          cedula_Comercio: comercioId
+        let tarjetaData: TarjetaCredito = {
+          numero_Tarjeta: formValues.numero_Tarjeta,
+          fecha_Vencimiento: fechaFormatted,
+          cvv: formValues.cvv,
+          cedula_Cliente: userData.cedula
         };
 
-        // Validaciones adicionales
-        if (pedido.monto_Total <= 0) {
-          throw new Error('El monto total debe ser mayor a 0');
-        }
+        console.log("Sending tarjetaData:", tarjetaData);
 
-        console.log("Intentando crear pedido con datos:", pedido);
+        if (!this.usarDatosPrueba) {
+          await this.http.post(`${this.apiUrl}TarjetaCredito`, tarjetaData).toPromise();
+          let comercioId = sessionStorage.getItem('comercio_id');
 
-        let response = await this.http.post<Pedido>(`${this.apiUrl}Pedido`, pedido).toPromise();
-        console.log("Respuesta del servidor:", response);
-
-        if (response) {
-          let cartItemsStr = localStorage.getItem('carrito');
-          if (!cartItemsStr) {
-            throw new Error('No hay items en el carrito');
-          }
-          let cartData = JSON.parse(cartItemsStr);
-          console.log("Datos del carrito:", cartData);
-
-          let productos = cartData.productos;
-
-          if (!Array.isArray(productos)) {
-            throw new Error('Formato de carrito inválido');
+          // Validar que existe el comercio
+          if (!comercioId) {
+            throw new Error('No se encontró el ID del comercio');
           }
 
-          console.log("productos ", productos);
-          let productosPedidos: ProductosPedidos[] = productos.map((item: any) => ({
-            num_Pedido: response.num_Pedido,
-            id_Producto: item.producto.id
-          }));
+          // Verificar que el comercio existe antes de crear el pedido
+          try {
+            await this.http.get(`${this.apiUrl}ComercioAfiliado/${comercioId}`).toPromise();
+          } catch (error) {
+            throw new Error(`El comercio con ID ${comercioId} no existe`);
+          }
 
-          console.log("ProductosPedidos a enviar:", productosPedidos);
+          let pedidosResponse = await this.http.get<Pedido[]>(`${this.apiUrl}Pedido`).toPromise();
+          let ultimoNumPedido = pedidosResponse ? Math.max(...pedidosResponse.map(p => p.num_Pedido), 0) : 0;
+          let siguienteNumPedido = ultimoNumPedido + 1;
 
-          if (productosPedidos.length > 0) {
-            for (let i = 0; i < productosPedidos.length; i++) {
-              await this.http.post(`${this.apiUrl}ProductosPedidos`, productosPedidos[i]).toPromise();
+          let pedido: Pedido = {
+            num_Pedido: siguienteNumPedido,
+            nombre: `Pedido ${siguienteNumPedido}`,
+            estado: "Nuevo",
+            monto_Total: this.totales?.total || 0,
+            id_Repartidor: 1,
+            cedula_Comercio: comercioId
+          };
+
+          // Validaciones adicionales
+          if (pedido.monto_Total <= 0) {
+            throw new Error('El monto total debe ser mayor a 0');
+          }
+
+          console.log("Intentando crear pedido con datos:", pedido);
+
+          let response = await this.http.post<Pedido>(`${this.apiUrl}Pedido`, pedido).toPromise();
+          console.log("Respuesta del servidor:", response);
+
+          if (response) {
+            let cartItemsStr = localStorage.getItem('carrito');
+            if (!cartItemsStr) {
+              throw new Error('No hay items en el carrito');
             }
-          } else {
-            throw new Error('No hay productos para registrar');
+            let cartData = JSON.parse(cartItemsStr);
+            console.log("Datos del carrito:", cartData);
+
+            let productos = cartData.productos;
+
+            if (!Array.isArray(productos)) {
+              throw new Error('Formato de carrito inválido');
+            }
+
+            console.log("productos ", productos);
+            let productosPedidos: ProductosPedidos[] = productos.map((item: any) => ({
+              num_Pedido: response.num_Pedido,
+              id_Producto: item.producto.id
+            }));
+
+            console.log("ProductosPedidos a enviar:", productosPedidos);
+
+            if (productosPedidos.length > 0) {
+              for (let i = 0; i < productosPedidos.length; i++) {
+                await this.http.post(`${this.apiUrl}ProductosPedidos`, productosPedidos[i]).toPromise();
+              }
+            } else {
+              throw new Error('No hay productos para registrar');
+            }
+
+            // IMPORTANTE: Guardar el número de pedido antes de la redirección
+            console.log('Guardando número de pedido:', response.num_Pedido);
+            sessionStorage.setItem('pedido_actual', response.num_Pedido.toString());
+            // Limpiar carrito y totales
+            localStorage.removeItem('carrito');
+            sessionStorage.removeItem('totales_pedido');
+            await Swal.fire({
+              icon: 'success',
+              title: '¡Pedido realizado con éxito!',
+              text: 'Tu pedido ha sido procesado y está en camino',
+              confirmButtonText: 'Aceptar'
+            });
+            // Verificar que se guardó correctamente
+            const pedidoGuardado = sessionStorage.getItem('pedido_actual');
+            console.log('Pedido guardado en session:', pedidoGuardado);
+            this.router.navigate(['/recepcion-pedidos']);
           }
+        } else {
+          await this.simularDelay();
         }
-      } else {
-        await this.simularDelay();
+      } catch (error) {
+        console.error('Error completo:', error);
+        if (error instanceof HttpErrorResponse) {
+          console.error('Status:', error.status);
+          console.error('Error body:', error.error);
+        }
+        this.manejarError(error);
+      } finally {
+        this.cargando = false;
       }
-
-      localStorage.removeItem('carrito');
-      sessionStorage.removeItem('totales_pedido');
-
-      await Swal.fire({
-        icon: 'success',
-        title: '¡Pedido realizado con éxito!',
-        text: 'Tu pedido ha sido procesado y está en camino',
-        confirmButtonText: 'Aceptar'
-      });
-
-      this.router.navigate(['/']);
-    } catch (error) {
-      console.error('Error completo:', error);
-      if (error instanceof HttpErrorResponse) {
-        console.error('Status:', error.status);
-        console.error('Error body:', error.error);
-      }
-      this.manejarError(error);
-    } finally {
-      this.cargando = false;
     }
-}
+  }
+
 
   private async simularDelay(): Promise<void> {
     if (this.usarDatosPrueba) {

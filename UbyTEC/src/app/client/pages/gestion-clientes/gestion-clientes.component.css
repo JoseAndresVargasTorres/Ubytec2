@@ -4,7 +4,6 @@
   padding: 20px;
 }
 
-/* Estilos para las pestañas */
 .nav-tabs {
   border-bottom: 2px solid #dee2e6;
   margin-bottom: 20px;
@@ -54,8 +53,6 @@
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-
-* Estilos para el selector de provincia */
 .form-select {
   display: block;
   width: 100%;

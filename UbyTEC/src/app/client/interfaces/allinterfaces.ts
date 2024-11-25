@@ -118,6 +118,7 @@ export interface Repartidor {
   apellido1: string;
   apellido2: string;
   correo: string;
+  disponible?:string;
 }
 
 // TarjetaCredito.ts

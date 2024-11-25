@@ -3,7 +3,6 @@
 </header>
 
 <div class="page-container">
-
   <div class="container animated fadeIn">
     <!-- Loading spinner -->
     <div *ngIf="cargando" class="loading-overlay">
@@ -18,66 +17,82 @@
     </div>
 
     <div class="row justify-content-center mt-4">
-      <div class="col-md-8">
+      <div class="col-12">
         <div class="card">
-          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Recepción de Pedido</h5>
-            <!-- <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox"
-                     (change)="toggleModoData()" [checked]="usarDatosPrueba">
-              <label class="form-check-label text-white">Usar datos de prueba</label>
-            </div> -->
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Detalles del Pedido</h5>
           </div>
-
           <div class="card-body">
-            <div *ngIf="pedidoActual" class="pedido-info">
-              <h6 class="mb-4">Detalles del Pedido</h6>
-
-              <div class="info-group">
-                <div class="info-item">
-                  <span class="label">Número de Pedido:</span>
-                  <span class="value">#{{ pedidoActual.num_Pedido }}</span>
+            <!-- Detalles del Pedido -->
+            <div *ngIf="pedidoActual" class="mb-4">
+              <h6 class="border-bottom pb-2">Información del Pedido</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Número de Pedido:</strong> #{{ pedidoActual.num_Pedido }}</p>
+                  <p><strong>Estado:</strong>
+                    <span [ngClass]="{
+                      'badge bg-warning': pedidoActual.estado === 'En camino',
+                      'badge bg-success': pedidoActual.estado === 'Finalizado',
+                      'badge bg-info': pedidoActual.estado === 'Nuevo'
+                    }">{{ pedidoActual.estado }}</span>
+                  </p>
                 </div>
-
-                <div class="info-item">
-                  <span class="label">Estado:</span>
-                  <span class="value status-badge">{{ pedidoActual.estado }}</span>
+                <div class="col-md-6">
+                  <p><strong>Monto Total:</strong> ₡{{ pedidoActual.monto_Total | number:'1.0-0' }}</p>
+                  <p><strong>Comercio:</strong> {{ pedidoActual.cedula_Comercio }}</p>
                 </div>
-
-                <div class="info-item">
-                  <span class="label">Monto Total:</span>
-                  <span class="value">₡{{ pedidoActual.monto_Total | number:'1.0-0' }}</span>
-                </div>
-              </div>
-
-              <div *ngIf="repartidor" class="mt-4">
-                <h6 class="mb-3">Información del Repartidor</h6>
-
-                <div class="info-group">
-                  <div class="info-item">
-                    <span class="label">Nombre:</span>
-                    <span class="value">{{ repartidor.nombre }} {{ repartidor.apellido1 }} {{ repartidor.apellido2 }}</span>
-                  </div>
-
-                  <div class="info-item">
-                    <span class="label">Contacto:</span>
-                    <span class="value">{{ repartidor.correo }}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="mt-4">
-                <button class="btn btn-success w-100"
-                        (click)="confirmarRecepcion()"
-                        [disabled]="cargando">
-                  <i class="bi bi-check2-circle me-2"></i>
-                  Confirmar Recepción del Pedido
-                </button>
               </div>
             </div>
 
-            <div *ngIf="!pedidoActual" class="text-center py-4">
-              <p class="text-muted">No hay pedido activo para confirmar</p>
+            <!-- Detalles del Repartidor -->
+            <div *ngIf="repartidor" class="mb-4">
+              <h6 class="border-bottom pb-2">Información del Repartidor</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Nombre:</strong> {{ repartidor.nombre }} {{ repartidor.apellido1 }} {{ repartidor.apellido2 }}</p>
+                  <p><strong>Usuario:</strong> {{ repartidor.usuario }}</p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Correo:</strong> {{ repartidor.correo }}</p>
+                  <p><strong>Estado:</strong>
+                    <span [ngClass]="{'text-success': repartidor.disponible, 'text-warning': !repartidor.disponible}">
+                      {{ repartidor.disponible ? 'Disponible' : 'No Disponible' }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dirección del Pedido -->
+            <div *ngIf="direccionPedido" class="mb-4">
+              <h6 class="border-bottom pb-2">Dirección de Entrega</h6>
+              <p>
+                {{ direccionPedido.provincia }},
+                {{ direccionPedido.canton }},
+                {{ direccionPedido.distrito }}
+              </p>
+            </div>
+
+            <!-- Feedback del Cliente -->
+            <div *ngIf="pedidoCliente" class="mb-4">
+              <h6 class="border-bottom pb-2">Feedback del Cliente</h6>
+              <p *ngIf="pedidoCliente.feedback">{{ pedidoCliente.feedback }}</p>
+              <p *ngIf="!pedidoCliente.feedback" class="text-muted">Sin feedback todavía</p>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="d-flex justify-content-end mt-4">
+              <button
+                class="btn btn-secondary me-2"
+                routerLink="/">
+                Volver
+              </button>
+              <button
+                class="btn btn-primary"
+                (click)="confirmarRecepcion()"
+                [disabled]="cargando || !pedidoActual || !repartidor">
+                Confirmar Recepción
+              </button>
             </div>
           </div>
         </div>
