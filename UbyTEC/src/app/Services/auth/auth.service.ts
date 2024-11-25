@@ -18,6 +18,7 @@ export class AuthService {
   private apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api';
   private readonly USER_KEY = 'currentUser';
   private readonly TYPE_KEY = 'userType';
+  private readonly BUSINESS_KEY = 'currentBusiness';
 
   constructor(private http: HttpClient) {}
 
@@ -60,7 +61,7 @@ export class AuthService {
   }
 
   loginNegocioAfiliado(password: string, usuario: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/Administrador/AdministradorComercio/${password}/${usuario}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/Administrador/${password}/${usuario}`).pipe(
       map(response => {
         if (response) {
           this.setUserSession(response, 'negocio');
@@ -83,16 +84,32 @@ export class AuthService {
     };
     sessionStorage.setItem(this.USER_KEY, JSON.stringify(sessionData));
     sessionStorage.setItem(this.TYPE_KEY, userType);
+    if(userType === "negocio"){
+      this.http.get<any>(`${this.apiUrl}/ComercioAfiliado/`).subscribe({
+        next: res => {
+          const currentBusiness = res.find((comercio: any)=> comercio.cedula_Admin == userData.cedula);
+          console.log(currentBusiness);
+          sessionStorage.setItem(this.BUSINESS_KEY, currentBusiness.cedula_Juridica);
+        }
+      })
+    }else{
+      
+    }
   }
 
  // Método para obtener el usuario actual
- getCurrentUser(): any {
-  const userStr = localStorage.getItem('loggedInUser');
-  return userStr ? JSON.parse(userStr) : null;
-}
+  getCurrentUser(): any {
+    const userStr = localStorage.getItem('loggedInUser');
+    return userStr ? JSON.parse(userStr) : null;
+  }
 
   getUserType(): string | null {
     return sessionStorage.getItem(this.TYPE_KEY);
+  }
+
+  getCurrentBusiness(): string {
+    const businessStr = sessionStorage.getItem(this.BUSINESS_KEY);
+    return businessStr ? JSON.parse(businessStr) : null;
   }
 
   isLoggedIn(): boolean {

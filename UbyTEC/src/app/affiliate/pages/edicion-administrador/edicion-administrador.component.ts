@@ -4,6 +4,7 @@ import { HeaderAffiliateComponent } from '../../components/header/header-affilia
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../../../Services/API/api.service';
 import { NgFor, NgIf } from '@angular/common';
+import { AuthService } from '../../../Services/auth/auth.service';
 
 
 @Component({
@@ -15,14 +16,12 @@ import { NgFor, NgIf } from '@angular/common';
 })
 export class EdicionAdministradorComponent implements OnInit {
   AdministratorForm: FormGroup;
-  //AddressForm: FormGroup;
- //TelefonoForm: FormGroup;
+  administratorId: any = 0;
   phones: string[] = [''];
   isEditMode = false;
-  administratorId: string = "1126459880";
   
 
-  constructor (private api: ApiService, private router:Router, private route: ActivatedRoute, private fb: FormBuilder){
+  constructor (private api: ApiService, private router:Router, private route: ActivatedRoute, private fb: FormBuilder, private auth: AuthService){
     this.AdministratorForm = this.fb.group({
       cedula: ['', Validators.required],
       usuario: ['', Validators.required],
@@ -67,6 +66,7 @@ export class EdicionAdministradorComponent implements OnInit {
   }
 
   ngOnInit(){
+    this.administratorId = this.auth.getCurrentUserCedula();
     this.api.getData(`Administrador/${this.administratorId}`).subscribe({
       next: (admin) => {
         this.api.getData(`DireccionAdministrador/${this.administratorId}`).subscribe({
