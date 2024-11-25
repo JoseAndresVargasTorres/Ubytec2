@@ -3,19 +3,9 @@
 </header>
 
 <div class="container mt-4">
-
   <div class="row mb-4">
     <div class="col">
       <h2>Gestión de Afiliaciones</h2>
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox"
-               [checked]="usarMock"
-               (change)="toggleSource()"
-               id="toggleSource">
-        <label class="form-check-label" for="toggleSource">
-          Usar datos de prueba
-        </label>
-      </div>
     </div>
   </div>
 
@@ -32,23 +22,31 @@
                 <mat-header-cell *matHeaderCellDef>{{disCol}}</mat-header-cell>
                 <mat-cell *matCellDef="let element">{{element[disCol]}}</mat-cell>
               </ng-container>
-      
+
               <ng-container matColumnDef="aprobar">
                 <mat-header-cell *matHeaderCellDef></mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  <button mat-button class="btn btn-success btn-sm me-2" (click)="aprobarSolicitud(element.cedula_Juridica, element.cedula_Admin)">Aprobar</button>
+                  <button mat-button class="btn btn-success btn-sm me-2"
+                          (click)="aprobarSolicitud(element.cedula_Juridica, element.cedula_Admin)">
+                    Aprobar
+                  </button>
                 </mat-cell>
               </ng-container>
 
               <ng-container matColumnDef="rechazar">
                 <mat-header-cell *matHeaderCellDef></mat-header-cell>
                 <mat-cell *matCellDef="let element">
-                  <button mat-button class="btn btn-danger" (click)="rechazarSolicitud(element.cedula_Juridica)">Rechazar</button>
+                  <button mat-button class="btn btn-danger"
+                          (click)="rechazarSolicitud(element.cedula_Juridica)">
+                    Rechazar
+                  </button>
                 </mat-cell>
               </ng-container>
-      
-              <mat-header-row *matHeaderRowDef="displayedColumns.concat(['aprobar', 'rechazar']); sticky: true"></mat-header-row>
-              <mat-row *matRowDef="let row; columns: displayedColumns.concat(['aprobar', 'rechazar'])"></mat-row>
+
+              <mat-header-row *matHeaderRowDef="displayedColumns.concat(['aprobar', 'rechazar']); sticky: true">
+              </mat-header-row>
+              <mat-row *matRowDef="let row; columns: displayedColumns.concat(['aprobar', 'rechazar'])">
+              </mat-row>
             </mat-table>
           </div>
         </div>
@@ -56,4 +54,3 @@
     </div>
   </div>
 </div>
-

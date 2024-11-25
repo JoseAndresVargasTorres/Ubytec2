@@ -6,6 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { TableService } from '../../../Services/Table/table.service';
 import { ApiService } from '../../../Services/API/api.service';
 import { forkJoin } from 'rxjs';
+import { ValidacionComercioControllerSQL } from '../../interfaces/comercioafiliado/Validacion_Comercio';
 
 interface ValidacionComercio {
   id: string;
@@ -26,152 +27,79 @@ interface ComercioAfiliado {
 @Component({
   selector: 'app-gestionar-afiliaciones',
   standalone: true,
-  imports: [ ReactiveFormsModule, MatTableModule, CommonModule, HeaderAdminComponent,FormsModule
-  ],
+  imports: [ ReactiveFormsModule, MatTableModule, CommonModule, HeaderAdminComponent, FormsModule ],
   templateUrl: './gestionar-afiliaciones.component.html',
   styleUrl: './gestionar-afiliaciones.component.css'
 })
 export class GestionarAfiliacionesComponent implements OnInit {
-  solicitudes: ValidacionComercio[] = [];
-  comercios: ComercioAfiliado[] = [];
-  usarMock: boolean = true;
-  formRechazo: FormGroup;
-  solicitudSeleccionada: ValidacionComercio | null = null;
   displayedColumns: string[] = [];
   objects = [];
-  columns: string[] = ['cedula_Juridica', 'nombre', 'correo'];  // Definir las columnas a mostrar
+  columns: string[] = ['cedula_Juridica', 'nombre', 'correo'];
 
-  constructor(private fb: FormBuilder, private api_service: ApiService, private table_service: TableService) {
-    this.formRechazo = this.fb.group({
-      comentario: ['', Validators.required]
-    });
-  }
+  constructor(
+    private fb: FormBuilder,
+    private api_service: ApiService,
+    private table_service: TableService
+  ) { }
 
   ngOnInit() {
     this.cargarDatos();
   }
 
-  toggleSource() {
-    this.usarMock = !this.usarMock;
-    this.cargarDatos();
-  }
-
   cargarDatos() {
-    if (this.usarMock) {
-      this.cargarDatosMock();
-    } else {
-      this.cargarDatosAPI();
-    }
-  }
-
-  cargarDatosMock() {
-    // Datos de ejemplo
-    this.solicitudes = [
-      {
-        id: '1',
-        cedulaComercio: '3101123456',
-        comentario: '',
-        estado: 'pendiente'
-      },
-      {
-        id: '2',
-        cedulaComercio: '3101789012',
-        comentario: '',
-        estado: 'pendiente'
-      }
-    ];
-
-    this.comercios = [
-      {
-        cedula_Juridica: '3101123456',
-        nombre: 'Restaurante El Buen Sabor',
-        correo: 'info@buensabor.com',
-        sinpe: '88888888',
-        id_Tipo: 1,
-        cedula_Admin: 123456789
-      },
-      {
-        cedula_Juridica: '3101789012',
-        nombre: 'Supermercado La Esquina',
-        correo: 'info@laesquina.com',
-        sinpe: '77777777',
-        id_Tipo: 2,
-        cedula_Admin: 987654321
-      }
-    ];
+    this.cargarDatosAPI();
   }
 
   async cargarDatosAPI() {
-    
     this.api_service.getData('ValidacionComercioControllerSQL').subscribe({
       next: res => {
         res.filter((validacion:any) => validacion.estado !== "Aprobado");
         this.getComercios(res);
-      }, error: err => {console.error(err)}
+      },
+      error: err => {console.error(err)}
     })
   }
 
-  getComercios(validaciones: {cedula_Comercio: string, cedula_Admin: number, estado: string}[]){
-    const comercio_calls = validaciones.map((validacion: any) => this.api_service.getData(`ComercioAfiliado/${validacion.cedula_Comercio}`));
+  getComercios(validaciones: {cedula_Comercio: string, cedula_Admin: number, estado: string}[]) {
+    const comercio_calls = validaciones.map((validacion: any) =>
+      this.api_service.getData(`ComercioAfiliado/${validacion.cedula_Comercio}`)
+    );
 
     forkJoin(comercio_calls).subscribe({
       next: res => {
-        this.table_service.showTable(res, this.columns);  // Mostrar la tabla con los datos y columnas definidos
+        this.table_service.showTable(res, this.columns);
         this.objects = this.table_service.objects;
         this.displayedColumns = this.table_service.displayedColumns;
       }
     })
-
-    
-  }
-
-  obtenerComercio(cedulaComercio: string): ComercioAfiliado | undefined {
-    return this.comercios.find(c => c.cedula_Juridica === cedulaComercio);
   }
 
   async aprobarSolicitud(cedula_Comercio: string, cedula_Admin: number) {
-    const cuerpo = JSON.stringify({cedula_Comercio, cedula_Admin, estado:"Aprobado"});
-    //const cuerpo_mongo = JSON.stringify({cedulaComercio: cedula_Comercio, comentario: "...", estado:"Aprobado"});
+    const cuerpo = JSON.stringify({
+      cedula_Comercio,
+      cedula_Admin,
+      estado: "Aprobado"
+    });
 
-    
     this.api_service.putData(`ValidacionComercioControllerSQL/${cedula_Comercio}`, cuerpo).subscribe({
       next: res => {
-        console.log(res)
-      },error: err => { console.error(err) }
+        console.log(res);
+        this.cargarDatos(); // Recargar datos después de aprobar
+      },
+      error: err => { console.error(err) }
     })
-    
-    /** 
-    this.api_service.putData(`ValidacionComercio/${cedula_Comercio}`, cuerpo_mongo).subscribe({
-      next: res => {
-        console.log(res)
-      },error: err => { console.error(err) }
-    })
-    this.cargarDatosAPI();
-    */
-  }
-
-
-  seleccionarParaRechazo(solicitud: ValidacionComercio) {
-    this.solicitudSeleccionada = solicitud;
-    this.formRechazo.reset();
   }
 
   async rechazarSolicitud(cedula: string) {
-    if (this.solicitudSeleccionada && this.formRechazo.valid) {
-      this.solicitudSeleccionada.estado = 'rechazado';
-      this.solicitudSeleccionada.comentario = this.formRechazo.get('comentario')?.value;
+    const api1 = this.api_service.deleteData(`ValidacionComercioControllerSQL/${cedula}`);
+    const api2 = this.api_service.deleteData(`ComercioAfiliado/${cedula}`);
 
-      if (this.usarMock) {
-        // Actualizar localmente
-        this.solicitudes = this.solicitudes.map(s =>
-          s.id === this.solicitudSeleccionada?.id ? this.solicitudSeleccionada : s
-        );
-      } else {
-        // Llamada a API
-        // await this.validacionService.actualizarValidacion(this.solicitudSeleccionada).toPromise();
-      }
-
-      this.solicitudSeleccionada = null;
-    }
+    forkJoin([api1, api2]).subscribe({
+      next: res => {
+        console.log(res);
+        this.cargarDatos(); // Recargar datos después de rechazar
+      },
+      error: err => {console.error(err)}
+    })
   }
 }

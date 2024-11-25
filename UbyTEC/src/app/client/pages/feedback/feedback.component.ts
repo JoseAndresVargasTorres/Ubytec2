@@ -17,7 +17,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./feedback.component.css']
 })
 export class FeedbackComponent implements OnInit {
-  private readonly apiUrl = 'http://localhost:5037/api/';
+  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
 
   feedbackForm: FormGroup;
   pedidoActual: Pedido | null = null;

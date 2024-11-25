@@ -321,51 +321,7 @@ private updateTelefonos(cedula: number, telefonos: Telefono_AdminApp[]): void {
 }
 
 
-  // Método de eliminación mejorado
-deleteallInfoAdmin(cedula: number): void {
-  Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción eliminará toda la información del administrador y no se puede deshacer',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#d33'
-  }).then((result) => {
-      if (result.isConfirmed) {
-          // Primero eliminamos los teléfonos
-          this.adminAppService.deleteTelefonosAdminApp(cedula).subscribe({
-              next: () => {
-                  // Luego eliminamos la dirección
-                  this.adminAppService.deleteDireccionesAdminApp(cedula).subscribe({
-                      next: () => {
-                          // Finalmente eliminamos el administrador
-                          this.adminAppService.deleteAdminApp(cedula).subscribe({
-                              next: () => {
-                                  this.handleDeleteSuccess();
-                              },
-                              error: (error) => {
-                                  console.error('Error al eliminar administrador:', error);
-                                  this.handleDeleteError('administrador');
-                              }
-                          });
-                      },
-                      error: (error) => {
-                          console.error('Error al eliminar dirección:', error);
-                          this.handleDeleteError('dirección');
-                      }
-                  });
-              },
-              error: (error) => {
-                  console.error('Error al eliminar teléfonos:', error);
-                  this.handleDeleteError('teléfonos');
-              }
-          });
-      }
-  });
-}
-
-
+  
 saveAdmin(): void {
   if (this.adminForm.valid) {
       Swal.fire({
@@ -535,8 +491,49 @@ saveAdmin(): void {
   }
 
   // Actualización de datos después de la eliminación
-  private updateAllData(): void {
-    // Usar forkJoin para asegurar que todas las llamadas se completen
+// Método principal de eliminación
+deleteallInfoAdmin(cedula: number): void {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción eliminará toda la información del administrador y no se puede deshacer',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Usar forkJoin para manejar las eliminaciones en paralelo
+      const deleteTelefonos = this.adminAppService.deleteTelefonosAdminApp(cedula);
+      const deleteDireccion = this.adminAppService.deleteDireccionesAdminApp(cedula);
+      const deleteAdmin = this.adminAppService.deleteAdminApp(cedula);
+
+      // Ejecutar todas las operaciones de eliminación
+      forkJoin([deleteTelefonos, deleteDireccion, deleteAdmin]).subscribe({
+        next: () => {
+          console.log('Administrador y datos relacionados eliminados correctamente');
+          this.updateAllData();
+          Swal.fire({
+            title: 'Eliminado',
+            text: 'El administrador y todos sus datos han sido eliminados correctamente',
+            icon: 'success'
+          });
+        },
+        error: (error) => {
+          console.error('Error durante el proceso de eliminación:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error durante la eliminación. Por favor, inténtelo de nuevo.',
+            icon: 'error'
+          });
+        }
+      });
+    }
+  });
+}
+
+// Método de actualización de datos optimizado
+private updateAllData(): void {
   forkJoin({
     administradores: this.adminAppService.getAdminApps(),
     direcciones: this.adminAppService.getDireccionesAdminApp(),
@@ -546,14 +543,18 @@ saveAdmin(): void {
       this.administradores = data.administradores;
       this.direcciones_administrador = data.direcciones;
       this.telefonos_admin = data.telefonos;
+      this.resetForm();
     },
     error: (error) => {
       console.error('Error al actualizar los datos:', error);
-      this.handleError('Error al actualizar la información');
+      Swal.fire({
+        title: 'Error',
+        text: 'Error al actualizar la información. Por favor, recargue la página.',
+        icon: 'error'
+      });
     }
   });
 }
-
 
 // Reset del formulario
 private resetForm(): void {

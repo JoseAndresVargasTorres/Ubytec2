@@ -9,9 +9,9 @@ import { Telefono_AdminApp } from '../../interfaces/adminapp/Telefono_AdminApp';
   providedIn: 'root'
 })
 export class AdminAppServiceService {
-  private apiUrlAdminApp = 'http://localhost:5037/api/Administrador/';
-  private apiUrlDireccion = 'http://localhost:5037/api/DireccionAdministrador/';
-  private apiUrlTelefono = 'http://localhost:5037/api/TelefonoAdmin/'; // Cambiado a TelefonoAdmin
+  private apiUrlAdminApp = 'https://ubyapi-1016717342490.us-central1.run.app/api/Administrador/';
+  private apiUrlDireccion = 'https://ubyapi-1016717342490.us-central1.run.app/api/DireccionAdministrador/';
+  private apiUrlTelefono = 'https://ubyapi-1016717342490.us-central1.run.app/api/TelefonoAdmin/'; // Cambiado a TelefonoAdmin
 
   private httpOptions = {
     headers: new HttpHeaders({

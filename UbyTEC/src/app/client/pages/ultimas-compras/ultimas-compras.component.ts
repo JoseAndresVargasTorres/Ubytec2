@@ -34,12 +34,12 @@ interface Cliente {
   styleUrls: ['./ultimas-compras.component.css']
 })
 export class UltimasComprasComponent implements OnInit {
-  private readonly apiUrl = 'http://localhost:5037/api/UltimasCompras';
+  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/UltimasCompras';
   cedulaCliente: number | null = null;
   ultimasCompras: UltimaCompra[] = [];
   cargando = false;
   errorMessage: string | null = null;
-  usarDatosPrueba = false;
+  usarDatosPrueba = true; // Changed to true to always show test data
 
   readonly datosPrueba: UltimaCompra[] = [
     {
@@ -80,6 +80,46 @@ export class UltimasComprasComponent implements OnInit {
       comercioAfiliado: "Restaurante La Parrilla",
       montoTotal: 25000,
       feedback: "Muy buena atención",
+      estado: "Finalizado"
+    },
+    {
+      cedulaCliente: 123456789,
+      numPedido: 6,
+      comercioAfiliado: "Panadería El Pan Dorado",
+      montoTotal: 9500,
+      feedback: "Pan siempre fresco y caliente",
+      estado: "Finalizado"
+    },
+    {
+      cedulaCliente: 123456789,
+      numPedido: 7,
+      comercioAfiliado: "Librería Conocimiento",
+      montoTotal: 32000,
+      feedback: "Gran variedad de libros",
+      estado: "Finalizado"
+    },
+    {
+      cedulaCliente: 123456789,
+      numPedido: 8,
+      comercioAfiliado: "Verdulería Fresh",
+      montoTotal: 18500,
+      feedback: null,
+      estado: "En proceso"
+    },
+    {
+      cedulaCliente: 123456789,
+      numPedido: 9,
+      comercioAfiliado: "Cafetería Aroma",
+      montoTotal: 7500,
+      feedback: "El mejor café de la ciudad",
+      estado: "Finalizado"
+    },
+    {
+      cedulaCliente: 123456789,
+      numPedido: 10,
+      comercioAfiliado: "Ferretería Constructor",
+      montoTotal: 65000,
+      feedback: "Excelente asesoría técnica",
       estado: "Finalizado"
     }
   ];
@@ -125,49 +165,8 @@ export class UltimasComprasComponent implements OnInit {
   }
 
   private cargarCompras(): void {
-    if (this.usarDatosPrueba) {
-      this.ultimasCompras = this.datosPrueba;
-      return;
-    }
-
-    this.cargarComprasDesdeAPI();
-  }
-
-  private cargarComprasDesdeAPI(): void {
-    if (!this.cedulaCliente) {
-      this.mostrarError('No se pudo obtener la cédula del cliente');
-      return;
-    }
-
-    this.cargando = true;
-
-    this.http.get<UltimaCompra[]>(`${this.apiUrl}/cliente/${this.cedulaCliente}`)
-      .subscribe({
-        next: (compras) => {
-          this.ultimasCompras = compras.slice(0, 10);
-          this.cargando = false;
-        },
-        error: (error) => {
-          this.manejarError(error);
-          this.cargando = false;
-        }
-      });
-  }
-
-  private manejarError(error: any): void {
-    console.error('Error:', error);
-    const mensaje = error.error?.message || error.message || 'Ha ocurrido un error inesperado';
-    this.errorMessage = mensaje;
-    this.mostrarError(mensaje);
-  }
-
-  private mostrarError(mensaje: string): void {
-    Swal.fire({
-      title: 'Error',
-      text: mensaje,
-      icon: 'error',
-      confirmButtonText: 'Aceptar'
-    });
+    // Always use test data
+    this.ultimasCompras = this.datosPrueba;
   }
 
   ngOnDestroy(): void {
