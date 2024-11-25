@@ -166,3 +166,11 @@ export interface ValidacionComercio {
   comentario: string;
   estado: string;
 }
+
+// ValidacionComercioSQL.ts
+export interface ValidacionComercioControllerSQL {
+  cedula_Comercio: string;
+  cedula_Admin: number;
+  estado: string;
+}
+
