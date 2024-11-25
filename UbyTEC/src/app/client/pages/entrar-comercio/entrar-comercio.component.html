@@ -179,7 +179,7 @@
             <h5 class="mb-0 text-success">₡{{obtenerTotal() | number:'1.0-0'}}</h5>
           </div>
           <button class="btn btn-success w-100"
-                  [routerLink]="['/carrito']"
+                  (click)="guardarYNavegar()"
                   [disabled]="productosCarrito.length === 0">
             <i class="bi bi-bag-check me-2"></i>
             Guardar en el Carrito de Compras
@@ -188,12 +188,4 @@
       </div>
     </div>
   </section>
-
-  <!-- Toggle Modo Datos -->
-  <div class="mt-4 text-center">
-    <button class="btn btn-outline-secondary" (click)="toggleModoData()">
-      <i class="bi" [ngClass]="usarDatosPrueba ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
-      {{usarDatosPrueba ? 'Cambiar a API Real' : 'Usar Datos de Prueba'}}
-    </button>
-  </div>
 </div>

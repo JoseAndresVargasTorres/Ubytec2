@@ -55,8 +55,8 @@ namespace UbyApi.Controllers
                 if (
                     (repartidor.Id == -1)    &&
                     (repartidor.Usuario == "-1") &&
-                    (repartidor.Password == "-1") &&
                     (repartidor.Nombre == "-1") &&
+                    (repartidor.Disponible == "-1")&&
                     (repartidor.Apellido1 == "-1") &&
                     (repartidor.Apellido2 == "-1") &&
                     (repartidor.Correo == "-1")

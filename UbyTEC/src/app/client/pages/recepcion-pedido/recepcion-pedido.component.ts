@@ -11,6 +11,7 @@ import {
   DireccionRepartidor
 } from '../../interfaces/allinterfaces';
 import Swal from 'sweetalert2';
+import { catchError, firstValueFrom, of } from 'rxjs';
 
 interface RecepcionPedidoRequest {
   numPedido: number;
@@ -62,21 +63,29 @@ export class RecepcionPedidoComponent implements OnInit {
         throw new Error('No se encontró el número de pedido');
       }
 
-      // Cargar datos del pedido
-      const pedidoResponse = await this.http.get<Pedido>(
-        `${this.apiUrl}Pedido/${numPedido}`
-      ).toPromise();
+      // Cargar datos del pedido con manejo de errores
+      const pedidoResponse = await firstValueFrom(
+        this.http.get<Pedido>(`${this.apiUrl}Pedido/${numPedido}`).pipe(
+          catchError((error) => {
+            console.error('Error al cargar pedido:', error);
+            return of(null);
+          })
+        )
+      );
 
-      if (pedidoResponse) {
-        this.pedidoActual = pedidoResponse;
-        await Promise.all([
-          this.cargarDatosRepartidor(pedidoResponse.id_Repartidor),
-          this.cargarDireccionPedido(pedidoResponse.num_Pedido),
-          this.cargarPedidoCliente(pedidoResponse.num_Pedido)
-        ]);
-      } else {
-        throw new Error('No se encontró el pedido');
+      if (!pedidoResponse) {
+        throw new Error('No se pudo cargar el pedido');
       }
+
+      this.pedidoActual = pedidoResponse;
+
+      // Cargar datos adicionales de manera independiente
+      await Promise.allSettled([
+        this.cargarDatosRepartidor(pedidoResponse.id_Repartidor),
+        this.cargarDireccionPedido(pedidoResponse.num_Pedido),
+        this.cargarPedidoCliente(pedidoResponse.num_Pedido)
+      ]);
+
     } catch (error) {
       this.manejarError(error);
     } finally {
@@ -87,16 +96,26 @@ export class RecepcionPedidoComponent implements OnInit {
   private async cargarDatosRepartidor(idRepartidor: number): Promise<void> {
     try {
       const [repartidorResponse, direccionResponse] = await Promise.all([
-        this.http.get<Repartidor>(
-          `${this.apiUrl}Repartidor/${idRepartidor}`
-        ).toPromise(),
-        this.http.get<DireccionRepartidor>(
-          `${this.apiUrl}DireccionRepartidor/${idRepartidor}`
-        ).toPromise()
+        firstValueFrom(
+          this.http.get<Repartidor>(`${this.apiUrl}Repartidor/${idRepartidor}`).pipe(
+            catchError((error) => {
+              console.error('Error al cargar repartidor:', error);
+              return of(null);
+            })
+          )
+        ),
+        firstValueFrom(
+          this.http.get<DireccionRepartidor>(`${this.apiUrl}DireccionRepartidor/${idRepartidor}`).pipe(
+            catchError((error) => {
+              console.error('Error al cargar dirección del repartidor:', error);
+              return of(null);
+            })
+          )
+        )
       ]);
 
-      this.repartidor = repartidorResponse || null;
-      this.direccionRepartidor = direccionResponse || null;
+      this.repartidor = repartidorResponse;
+      this.direccionRepartidor = direccionResponse;
     } catch (error) {
       console.error('Error al cargar datos del repartidor:', error);
     }
@@ -104,10 +123,19 @@ export class RecepcionPedidoComponent implements OnInit {
 
   private async cargarDireccionPedido(numPedido: number): Promise<void> {
     try {
-      const direccionResponse = await this.http.get<DireccionPedido>(
-        `${this.apiUrl}DireccionPedido/${numPedido}`
-      ).toPromise();
-      this.direccionPedido = direccionResponse || null;
+      const direccionResponse = await firstValueFrom(
+        this.http.get<DireccionPedido>(`${this.apiUrl}DireccionPedido/${numPedido}`).pipe(
+          catchError((error) => {
+            if (error.status === 404) {
+              console.log('No se encontró dirección para el pedido:', numPedido);
+            } else {
+              console.error('Error al cargar dirección del pedido:', error);
+            }
+            return of(null);
+          })
+        )
+      );
+      this.direccionPedido = direccionResponse;
     } catch (error) {
       console.error('Error al cargar dirección del pedido:', error);
     }
@@ -115,10 +143,19 @@ export class RecepcionPedidoComponent implements OnInit {
 
   private async cargarPedidoCliente(numPedido: number): Promise<void> {
     try {
-      const pedidoClienteResponse = await this.http.get<PedidosCliente>(
-        `${this.apiUrl}PedidosCliente/pedido/${numPedido}`
-      ).toPromise();
-      this.pedidoCliente = pedidoClienteResponse || null;
+      const pedidoClienteResponse = await firstValueFrom(
+        this.http.get<PedidosCliente>(`${this.apiUrl}PedidosCliente/pedido/${numPedido}`).pipe(
+          catchError((error) => {
+            if (error.status === 404) {
+              console.log('No se encontró relación pedido-cliente:', numPedido);
+            } else {
+              console.error('Error al cargar relación pedido-cliente:', error);
+            }
+            return of(null);
+          })
+        )
+      );
+      this.pedidoCliente = pedidoClienteResponse;
     } catch (error) {
       console.error('Error al cargar relación pedido-cliente:', error);
     }
@@ -127,7 +164,7 @@ export class RecepcionPedidoComponent implements OnInit {
   async confirmarRecepcion(): Promise<void> {
     try {
       if (!this.pedidoActual || !this.repartidor) {
-        throw new Error('No se encontraron los datos del pedido o repartidor');
+        throw new Error('No se encontraron los datos necesarios para confirmar la recepción');
       }
 
       const confirmacion = await Swal.fire({
@@ -147,10 +184,16 @@ export class RecepcionPedidoComponent implements OnInit {
           idRepartidor: this.repartidor.id
         };
 
-        const response = await this.http.post<RecepcionPedidoResponse>(
-          `${this.apiUrl}RecepcionPedido/completar`,
-          request
-        ).toPromise();
+        const response = await firstValueFrom(
+          this.http.post<RecepcionPedidoResponse>(
+            `${this.apiUrl}RecepcionPedido/completar`,
+            request
+          ).pipe(
+            catchError((error) => {
+              throw new Error(error.error?.mensaje || 'Error al completar el pedido');
+            })
+          )
+        );
 
         if (response && response.exito) {
           await Swal.fire({
@@ -172,11 +215,13 @@ export class RecepcionPedidoComponent implements OnInit {
   }
 
   private manejarError(error: any): void {
-    console.error('Error:', error);
+    console.error('Error completo:', error);
     let mensaje = 'Ha ocurrido un error inesperado';
 
     if (error instanceof HttpErrorResponse) {
-      mensaje = error.error?.mensaje || error.message || mensaje;
+      console.error('Status:', error.status);
+      console.error('Error body:', error.error);
+      mensaje = error.error?.message || error.error?.mensaje || error.message || mensaje;
     } else if (error instanceof Error) {
       mensaje = error.message;
     }

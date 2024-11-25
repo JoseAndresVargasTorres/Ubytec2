@@ -14,9 +14,7 @@ public class RepartidorItem
     [StringLength(50)] // Define la longitud máxima como 50
     public required string Nombre { get; set; }
 
-    [Required] // Campo obligatorio
-    [StringLength(50)] // Define la longitud máxima como 50
-    public required string Password { get; set; }
+   
 
     [Required] // Campo obligatorio
     [StringLength(50)] // Define la longitud máxima como 50
@@ -28,5 +26,10 @@ public class RepartidorItem
     [Required] // Campo obligatorio
     [StringLength(100)] // Define la longitud máxima como 100
     public required string Correo { get; set; }
+
+    [Required] // Campo obligatorio
+    [StringLength(50)] // Define la longitud máxima como 100
+    public required string Disponible { get; set; }
+
 }
 

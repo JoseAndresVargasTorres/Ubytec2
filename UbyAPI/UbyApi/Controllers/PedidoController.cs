@@ -42,7 +42,6 @@ namespace UbyApi.Controllers
         }
 
         // PUT: api/Pedido/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPedidoItem(int id, PedidoItem pedidoItem)
         {
@@ -72,8 +71,7 @@ namespace UbyApi.Controllers
             return NoContent();
         }
 
-        // PUT: api/Pedido
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // PUT: api/Pedido/AsignaRepartidor/5
         [HttpPut("AsignaRepartidor/{num_pedido}")]
         public async Task<IActionResult> AsginaRepartidor(int num_pedido)
         {
@@ -85,12 +83,25 @@ namespace UbyApi.Controllers
             }
 
             return Ok(result);
-
         }
 
+        // PUT: api/Pedido/RecepcionPedido/5
+        [HttpPut("RecepcionPedido/{num_pedido}")]
+        public async Task<IActionResult> RecepcionPedido(int num_pedido)
+        {
+            var result = await _context.Pedido
+                .FromSqlRaw("EXEC recepcio_pedido @num_pedido = {0};", num_pedido)
+                .ToListAsync();
+
+            if (result == null || !result.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
 
         // POST: api/Pedido
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<PedidoItem>> PostPedidoItem(PedidoItem pedidoItem)
         {

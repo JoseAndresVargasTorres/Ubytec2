@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
-import { ComercioAfiliado, Producto, DireccionComercio, ProductoComercio } from '../../interfaces/allinterfaces';
+import { ComercioAfiliado, Producto, DireccionComercio, ProductoComercio, TipoComercio } from '../../interfaces/allinterfaces';
 import { HeaderClientComponent } from '../../components/header-client/header-client.component';
 import Swal from 'sweetalert2';
+import { Tipo_Comercio } from '../../../admin/interfaces/tipocomercio/Tipo_Comercio';
 
 interface CarritoItem {
   producto: Producto;
@@ -34,6 +35,7 @@ export class EntrarComercioComponent implements OnInit {
   private readonly apiUrl = 'http://localhost:5037/api/';
   private readonly MAX_CANTIDAD = 99;
   private readonly MIN_CANTIDAD = 1;
+  private tiposComercio: { [key: number]: string } = {};
 
   // Estados
   comercios: ComercioAfiliado[] = [];
@@ -45,103 +47,11 @@ export class EntrarComercioComponent implements OnInit {
   // Estados de UI
   cargandoComercios = false;
   cargandoProductos = false;
-  usarDatosPrueba = true;
   errorMessage: string | null = null;
 
   // Formulario de filtros
   filtroForm: FormGroup;
   busquedaProducto = '';
-
-  // Datos de prueba
-  private readonly mockComercios: ComercioAfiliado[] = [
-    {
-      cedula_Juridica: "3001123456",
-      nombre: "Restaurante El Buen Sabor",
-      correo: "buensabor@email.com",
-      sinpe: "88776655",
-      id_Tipo: 1,
-      cedula_Admin: 123456789
-    },
-    {
-      cedula_Juridica: "3001789012",
-      nombre: "Super Fresh Market",
-      correo: "fresh@email.com",
-      sinpe: "87654321",
-      id_Tipo: 2,
-      cedula_Admin: 987654321
-    },
-    {
-      cedula_Juridica: "3001345678",
-      nombre: "Farmacia Salud Total",
-      correo: "salud@email.com",
-      sinpe: "89012345",
-      id_Tipo: 3,
-      cedula_Admin: 456789123
-    }
-  ];
-
-  private readonly mockProductosPorComercio: { [key: string]: Producto[] } = {
-    "3001123456": [
-      {
-        id: 1,
-        nombre: "Hamburguesa Clásica",
-        categoria: "Hamburguesas",
-        precio: 5500
-      },
-      {
-        id: 2,
-        nombre: "Pizza Margarita",
-        categoria: "Pizzas",
-        precio: 8900
-      },
-      {
-        id: 3,
-        nombre: "Ensalada César",
-        categoria: "Ensaladas",
-        precio: 4500
-      }
-    ],
-    "3001789012": [
-      {
-        id: 4,
-        nombre: "Leche 1L",
-        categoria: "Lácteos",
-        precio: 1200
-      },
-      {
-        id: 5,
-        nombre: "Pan Integral",
-        categoria: "Panadería",
-        precio: 1500
-      },
-      {
-        id: 6,
-        nombre: "Manzanas (kg)",
-        categoria: "Frutas",
-        precio: 2200
-      }
-    ],
-    "3001345678": [
-      {
-        id: 7,
-        nombre: "Paracetamol",
-        categoria: "Medicamentos",
-        precio: 2500
-      },
-      {
-        id: 8,
-        nombre: "Vitamina C",
-        categoria: "Vitaminas",
-        precio: 5000
-      },
-      {
-        id: 9,
-        nombre: "Alcohol en Gel",
-        categoria: "Higiene",
-        precio: 1800
-      }
-    ]
-  };
 
   constructor(
     private fb: FormBuilder,
@@ -161,7 +71,7 @@ export class EntrarComercioComponent implements OnInit {
 
   private async inicializarComponente(): Promise<void> {
     try {
-      await this.inicializarModoData();
+      await this.cargarTiposComercio();
       await this.cargarComerciosRegion();
       this.recuperarCarrito();
     } catch (error) {
@@ -169,44 +79,37 @@ export class EntrarComercioComponent implements OnInit {
     }
   }
 
-  // Inicialización y carga de datos
-  private async inicializarModoData(): Promise<void> {
+  private async cargarTiposComercio(): Promise<void> {
     try {
-      let apiDisponible = await this.verificarDisponibilidadAPI();
-      this.usarDatosPrueba = !apiDisponible;
+      const response = await this.http.get<TipoComercio[]>(
+        `${this.apiUrl}TipoComercio`
+      ).toPromise();
 
-      if (!apiDisponible) {
-        console.log('API no disponible, usando datos de prueba');
+      if (response) {
+        this.tiposComercio = response.reduce((acc, tipo) => {
+          acc[tipo.id] = tipo.nombre;
+          return acc;
+        }, {} as { [key: number]: string });
       }
     } catch (error) {
+      console.error('Error al cargar tipos de comercio:', error);
       this.manejarError(error);
-      this.usarDatosPrueba = true;
     }
+  }
+
+
+  getTipoComercio(id: number): string {
+    return this.tiposComercio[id] || 'Desconocido';
   }
 
   private async cargarComerciosRegion(): Promise<void> {
     this.cargandoComercios = true;
     try {
-      if (this.usarDatosPrueba) {
-        await this.simularDelay();
-        this.comercios = this.mockComercios;
+      let response = await this.http.get<ComercioAfiliado[]>(
+        `${this.apiUrl}ComercioAfiliado`
+      ).toPromise();
+      this.comercios = response || [];
 
-        let carritoGuardado = localStorage.getItem('carrito');
-      if (carritoGuardado) {
-        let carrito: CarritoState = JSON.parse(carritoGuardado);
-        let comercioEncontrado = this.comercios.find(c => c.cedula_Juridica === carrito.comercioId);
-        if (comercioEncontrado) {
-          this.cambiarComercio(comercioEncontrado);
-        }
-      }
-
-
-      } else {
-        let response = await this.http.get<ComercioAfiliado[]>(
-          `${this.apiUrl}ComercioAfiliado`
-        ).toPromise();
-        this.comercios = response || [];
-        // Misma lógica para la versión no de prueba
       let carritoGuardado = localStorage.getItem('carrito');
       if (carritoGuardado) {
         let carrito: CarritoState = JSON.parse(carritoGuardado);
@@ -215,12 +118,8 @@ export class EntrarComercioComponent implements OnInit {
           this.cambiarComercio(comercioEncontrado);
         }
       }
-
-
-      }
     } catch (error) {
       this.manejarError(error);
-      this.comercios = this.mockComercios; // Fallback a datos de prueba
     } finally {
       this.cargandoComercios = false;
     }
@@ -229,42 +128,27 @@ export class EntrarComercioComponent implements OnInit {
   private async cargarProductosComercio(cedulaJuridica: string): Promise<void> {
     this.cargandoProductos = true;
     try {
-      if (this.usarDatosPrueba) {
-        await this.simularDelay(800);
-        this.productosComercio = this.mockProductosPorComercio[cedulaJuridica] || [];
-      } else {
-        // Primero obtener los IDs de productos del comercio
-        let productosComercio = await this.http.get<ProductoComercio[]>(
-          `${this.apiUrl}ProductosComercio`
-        ).toPromise();
+      // Primero obtener los IDs de productos del comercio
+      let productosComercio = await this.http.get<ProductoComercio[]>(
+        `${this.apiUrl}ProductosComercio`
+      ).toPromise();
 
-        // Filtrar los productos que pertenecen a este comercio
-        let productosDelComercio = productosComercio?.filter(
-          pc => pc.cedula_Comercio === cedulaJuridica
-        ) || [];
+      // Filtrar los productos que pertenecen a este comercio
+      let productosDelComercio = productosComercio?.filter(
+        pc => pc.cedula_Comercio === cedulaJuridica
+      ) || [];
 
-        // Obtener los detalles de cada producto
-        let promesasProductos = productosDelComercio.map(pc =>
-          this.http.get<Producto>(`${this.apiUrl}Producto/${pc.id_Producto}`).toPromise()
-        );
+      // Obtener los detalles de cada producto
+      let promesasProductos = productosDelComercio.map(pc =>
+        this.http.get<Producto>(`${this.apiUrl}Producto/${pc.id_Producto}`).toPromise()
+      );
 
-        this.productosComercio = (await Promise.all(promesasProductos)).filter(p => p !== null) as Producto[];
-      }
+      this.productosComercio = (await Promise.all(promesasProductos)).filter(p => p !== null) as Producto[];
     } catch (error) {
       this.manejarError(error);
-      this.productosComercio = this.mockProductosPorComercio[cedulaJuridica] || [];
     } finally {
       this.cargandoProductos = false;
     }
-  }
-
-  private verificarDisponibilidadAPI(): Promise<boolean> {
-    return new Promise((resolve) => {
-      this.http.get(`${this.apiUrl}health-check`).subscribe({
-        next: () => resolve(true),
-        error: () => resolve(false)
-      });
-    });
   }
 
   // Métodos del carrito
@@ -345,10 +229,8 @@ export class EntrarComercioComponent implements OnInit {
 
   private verificarEstadoComercio(): void {
     const comercioId = sessionStorage.getItem('comercio_id');
-    console.log('Estado actual comercio_id:', comercioId);
     if (!comercioId && this.comercioSeleccionado) {
       sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica);
-      console.log('Comercio ID restaurado:', this.comercioSeleccionado.cedula_Juridica);
     }
   }
 
@@ -369,7 +251,6 @@ export class EntrarComercioComponent implements OnInit {
     };
 
     localStorage.setItem('carrito', JSON.stringify(carritoState));
-    console.log("comercio id  ", sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica) )
     sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica);
   }
 
@@ -380,7 +261,6 @@ export class EntrarComercioComponent implements OnInit {
         let carrito: CarritoState = JSON.parse(carritoGuardado);
         if (carrito.comercioId === this.comercioSeleccionado?.cedula_Juridica) {
           this.productosCarrito = carrito.productos;
-          console.log("comercio_id  ", sessionStorage.setItem('comercio_id', carrito.comercioId))
           sessionStorage.setItem('comercio_id', carrito.comercioId);
         }
       }
@@ -420,8 +300,6 @@ export class EntrarComercioComponent implements OnInit {
   private cambiarComercio(comercio: ComercioAfiliado): void {
     this.comercioSeleccionado = comercio;
     sessionStorage.setItem('comercio_id', comercio.cedula_Juridica);
-    console.log('Comercio ID guardado:', comercio.cedula_Juridica); // Debug log
-
     this.cargarProductosComercio(comercio.cedula_Juridica);
   }
 
@@ -462,13 +340,6 @@ export class EntrarComercioComponent implements OnInit {
     return Array.from(new Set(this.productosComercio.map(p => p.categoria)));
   }
 
-  // Utilidades
-  private async simularDelay(ms: number = 1000): Promise<void> {
-    if (this.usarDatosPrueba) {
-      await new Promise(resolve => setTimeout(resolve, ms));
-    }
-  }
-
   private manejarError(error: any): void {
     console.error('Error:', error);
     let mensaje = 'Ha ocurrido un error inesperado';
@@ -501,33 +372,8 @@ export class EntrarComercioComponent implements OnInit {
     });
   }
 
-  // Helpers
-  getTipoComercio(id: number): string {
-    let tipos: { [key: number]: string } = {
-      1: 'Restaurante',
-      2: 'Supermercado',
-      3: 'Farmacia',
-      4: 'Dulcería'
-    };
-    return tipos[id] || 'Desconocido';
-  }
+ 
 
-  // Toggle modo de datos
-  toggleModoData(): void {
-    this.usarDatosPrueba = !this.usarDatosPrueba;
-    this.cargarComerciosRegion();
-    if (this.comercioSeleccionado) {
-
-      this.cargarProductosComercio(this.comercioSeleccionado.cedula_Juridica);
-    }
-
-    this.mostrarNotificacion(
-      `Usando ${this.usarDatosPrueba ? 'datos de prueba' : 'datos de la API'}`,
-      'info'
-    );
-  }
-
-  // Guardar en carrito y navegar
   async guardarYNavegar(): Promise<void> {
     try {
       if (this.productosCarrito.length === 0) {
@@ -538,17 +384,13 @@ export class EntrarComercioComponent implements OnInit {
       if (this.comercioSeleccionado) {
         sessionStorage.setItem('comercio_id', this.comercioSeleccionado.cedula_Juridica);
       }
-      // Guardar estado actual del carrito
       this.guardarCarrito();
-
-      // Navegar a la página de administrar carrito
       await this.router.navigate(['/administrar-carrito']);
     } catch (error) {
       this.manejarError(error);
     }
   }
 
-  // Limpieza al destruir el componente
   ngOnDestroy(): void {
     this.errorMessage = null;
   }

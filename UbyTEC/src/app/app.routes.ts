@@ -48,5 +48,6 @@ export const routes: Routes = [
   {path: "gestion-productos", component: GestionProductosComponent},
   {path: "gestion-pedidos", component: GestionPedidosComponent},
   {path: "gestion-administrador", component: GestionAdministradorComponent},
-  {path: "edicion-administrador", component: EdicionAdministradorComponent}
+  {path: "edicion-administrador", component: EdicionAdministradorComponent},
+  {path:"administrar-carrito", component:AdministrarCarritoComponent}
 ];

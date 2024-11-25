@@ -3,8 +3,6 @@
 </header>
 
 <div class="page-container">
-
-
   <div class="container animated fadeIn">
     <!-- Loading spinner -->
     <div *ngIf="cargando" class="loading-overlay">
@@ -56,8 +54,11 @@
             <form [formGroup]="tarjetaForm" (ngSubmit)="procesarPago()">
               <div class="mb-3">
                 <label class="form-label">Número de Tarjeta</label>
-                <input type="text" class="form-control" formControlName="numero_Tarjeta"
-                       placeholder="1234 5678 9012 3456" maxlength="16">
+                <input type="text"
+                       class="form-control"
+                       formControlName="numero_Tarjeta"
+                       placeholder="1234 5678 9012 3456"
+                       maxlength="16">
                 <div class="invalid-feedback"
                      *ngIf="tarjetaForm.get('numero_Tarjeta')?.touched && tarjetaForm.get('numero_Tarjeta')?.errors">
                   <div *ngIf="tarjetaForm.get('numero_Tarjeta')?.errors?.['required']">
@@ -73,8 +74,11 @@
               <div class="row">
                 <div class="col-md-8 mb-3">
                   <label class="form-label">Fecha de Vencimiento (MM/AA)</label>
-                  <input type="text" class="form-control" formControlName="fecha_Vencimiento"
-                         placeholder="MM/AA" maxlength="5">
+                  <input type="text"
+                         class="form-control"
+                         formControlName="fecha_Vencimiento"
+                         placeholder="MM/AA"
+                         maxlength="5">
                   <div class="invalid-feedback"
                        *ngIf="tarjetaForm.get('fecha_Vencimiento')?.touched &&
                              tarjetaForm.get('fecha_Vencimiento')?.errors">
@@ -89,8 +93,11 @@
 
                 <div class="col-md-4 mb-3">
                   <label class="form-label">CVV</label>
-                  <input type="text" class="form-control" formControlName="cvv"
-                         placeholder="123" maxlength="3">
+                  <input type="text"
+                         class="form-control"
+                         formControlName="cvv"
+                         placeholder="123"
+                         maxlength="3">
                   <div class="invalid-feedback"
                        *ngIf="tarjetaForm.get('cvv')?.touched && tarjetaForm.get('cvv')?.errors">
                     <div *ngIf="tarjetaForm.get('cvv')?.errors?.['required']">
@@ -104,19 +111,14 @@
                 </div>
               </div>
 
-              <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox"
-                       (change)="toggleModoData()" [checked]="usarDatosPrueba">
-                <label class="form-check-label">
-                  Usar datos de prueba
-                </label>
-              </div>
-
               <div class="d-flex gap-2">
-                <button type="button" class="btn btn-secondary" (click)="volverAlCarrito()">
+                <button type="button"
+                        class="btn btn-secondary"
+                        (click)="volverAlCarrito()">
                   <i class="bi bi-arrow-left"></i> Volver al Carrito
                 </button>
-                <button type="submit" class="btn btn-primary flex-grow-1"
+                <button type="submit"
+                        class="btn btn-primary flex-grow-1"
                         [disabled]="tarjetaForm.invalid || cargando">
                   <i class="bi bi-credit-card"></i> Realizar Pago
                 </button>

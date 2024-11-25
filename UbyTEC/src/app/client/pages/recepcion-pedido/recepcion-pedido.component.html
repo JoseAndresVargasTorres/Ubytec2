@@ -23,6 +23,11 @@
             <h5 class="mb-0">Detalles del Pedido</h5>
           </div>
           <div class="card-body">
+            <!-- Sin datos del pedido -->
+            <div *ngIf="!pedidoActual" class="alert alert-warning">
+              No se encontraron datos del pedido
+            </div>
+
             <!-- Detalles del Pedido -->
             <div *ngIf="pedidoActual" class="mb-4">
               <h6 class="border-bottom pb-2">Información del Pedido</h6>
