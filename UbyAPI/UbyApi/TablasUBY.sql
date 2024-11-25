@@ -1,14 +1,14 @@
 CREATE TABLE Administrador (
     cedula INT PRIMARY KEY,
     usuario NVARCHAR(50) UNIQUE NOT NULL,
-    password NVARCHAR(64) NOT NULL,
+    password NVARCHAR(200) NOT NULL,
     nombre NVARCHAR(50) NOT NULL,
     apellido1 NVARCHAR(50) NOT NULL,
     apellido2 NVARCHAR(50)
 );
 
 CREATE TABLE TipoComercio (
-    id INT PRIMARY KEY identity(1,1),
+    id INT PRIMARY KEY,
     nombre NVARCHAR(50) NOT NULL
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE Producto (
 
 CREATE TABLE Repartidor (
     id INT PRIMARY KEY,
-    password NVARCHAR(64) not null,
+    password NVARCHAR(200) not null,
     usuario NVARCHAR(50) UNIQUE NOT NULL,
     nombre NVARCHAR(50) NOT NULL,
     apellido1 NVARCHAR(50) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE Pedido (
 
 CREATE TABLE Cliente (
     cedula INT PRIMARY KEY,
-    password NVARCHAR(64) NOT NULL,
+    password NVARCHAR(200) NOT NULL,
     nombre NVARCHAR(50) NOT NULL,
     usuario NVARCHAR(50) NOT NULL,
     apellido1 NVARCHAR(50) NOT NULL,
