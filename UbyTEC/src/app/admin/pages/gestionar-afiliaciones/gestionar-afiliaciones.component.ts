@@ -5,8 +5,12 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { TableService } from '../../../Services/Table/table.service';
 import { ApiService } from '../../../Services/API/api.service';
+<<<<<<< HEAD
 import { forkJoin } from 'rxjs';
 import { ValidacionComercioControllerSQL } from '../../interfaces/comercioafiliado/Validacion_Comercio';
+=======
+import { concat, forkJoin } from 'rxjs';
+>>>>>>> 3c6d26711e00a87a4444ac3a83b12d6c4370e1e2
 
 interface ValidacionComercio {
   id: string;
@@ -32,6 +36,14 @@ interface ComercioAfiliado {
   styleUrl: './gestionar-afiliaciones.component.css'
 })
 export class GestionarAfiliacionesComponent implements OnInit {
+<<<<<<< HEAD
+=======
+  solicitudes: ValidacionComercio[] = [];
+  comercios: ComercioAfiliado[] = [];
+  usarMock: boolean = false;
+  formRechazo: FormGroup;
+  solicitudSeleccionada: ValidacionComercio | null = null;
+>>>>>>> 3c6d26711e00a87a4444ac3a83b12d6c4370e1e2
   displayedColumns: string[] = [];
   objects = [];
   columns: string[] = ['cedula_Juridica', 'nombre', 'correo'];
@@ -89,10 +101,11 @@ export class GestionarAfiliacionesComponent implements OnInit {
       error: err => { console.error(err) }
     })
   }
-
+  
   async rechazarSolicitud(cedula: string) {
     const api1 = this.api_service.deleteData(`ValidacionComercioControllerSQL/${cedula}`);
     const api2 = this.api_service.deleteData(`ComercioAfiliado/${cedula}`);
+<<<<<<< HEAD
 
     forkJoin([api1, api2]).subscribe({
       next: res => {
@@ -100,6 +113,15 @@ export class GestionarAfiliacionesComponent implements OnInit {
         this.cargarDatos(); // Recargar datos después de rechazar
       },
       error: err => {console.error(err)}
+=======
+    const api3 = this.api_service.deleteData(`DireccionComercio/${cedula}`);
+
+    
+    concat([api1, api2, api3]).subscribe({
+      next: res => {
+        console.log(res);
+      }, error: err => {console.error(err)}
+>>>>>>> 3c6d26711e00a87a4444ac3a83b12d6c4370e1e2
     })
   }
 }
