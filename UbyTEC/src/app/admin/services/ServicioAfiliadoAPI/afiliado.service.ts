@@ -4,6 +4,7 @@ import { catchError, Observable, throwError } from 'rxjs';
 import { Afiliado } from '../../interfaces/comercioafiliado/Afiliado';
 import { Direccion_Comercio } from '../../interfaces/comercioafiliado/Direccion_Comercio';
 import { Telefono_comercio } from '../../interfaces/comercioafiliado/Telefono_comercio';
+import { ValidacionComercioControllerSQL } from '../../../client/interfaces/allinterfaces';
 import { Tipo_Comercio } from '../../interfaces/tipocomercio/Tipo_Comercio';
 import { AdministradorApp } from '../../interfaces/adminapp/AdministradorApp';
 
@@ -16,10 +17,12 @@ import { AdministradorApp } from '../../interfaces/adminapp/AdministradorApp';
 })
 export class AfiliadoService {
   // URLs base para los diferentes endpoints de la API
-  private apiUrlComercio = 'http://localhost:5037/api/ComercioAfiliado/';
-  private apiUrlDireccion = 'http://localhost:5037/api/DireccionComercio/';
-  private apiUrlTelefono = 'http://localhost:5037/api/TelefonoComercio/';
-  private apiUrlTipoComercio = 'http://localhost:5037/api/TipoComercio/';
+
+  private apiUrlComercio = 'https://ubyapi-1016717342490.us-central1.run.app/api/ComercioAfiliado/';
+  private apiUrlDireccion = 'https://ubyapi-1016717342490.us-central1.run.app/api/DireccionComercio/';
+  private apiUrlTelefono = 'https://ubyapi-1016717342490.us-central1.run.app/api/TelefonoComercio/';
+  private apiUrlTipoComercio = 'https://ubyapi-1016717342490.us-central1.run.app/api/TipoComercio/';
+  private apiUrlValidacionComercio = 'https://ubyapi-1016717342490.us-central1.run.app/api/ValidacionComercioContrllerSQL/';
 
   constructor(private http: HttpClient) {} // Inyección del servicio HttpClient
 
@@ -94,6 +97,34 @@ export class AfiliadoService {
 
   deleteTelefonoComercio(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrlTelefono}${id}`);
+  }
+
+  // Métodos para Validacion de Comercio
+  getValidacionComercio(): Observable<ValidacionComercioControllerSQL[]> {
+    return this.http.get<ValidacionComercioControllerSQL[]>(`${this.apiUrlValidacionComercio}`);
+  }
+
+  getValidacionDeComercio(id: string): Observable<ValidacionComercioControllerSQL> {
+    return this.http.get<ValidacionComercioControllerSQL>(
+      `${this.apiUrlValidacionComercio}${id}`
+    );
+  }
+
+  createValidacionComercio(validacion: ValidacionComercioControllerSQL): Observable<ValidacionComercioControllerSQL> {
+    return this.http.post<ValidacionComercioControllerSQL>(
+      `${this.apiUrlTelefono}`, validacion  // Enviar el array completo
+    );
+  }
+
+  updateValidacionComercioComercio(id: string, validacion: ValidacionComercioControllerSQL): Observable<any> {
+    return this.http.put(
+      `${this.apiUrlValidacionComercio}${id}`,
+      validacion
+    );
+  }
+
+  deleteValidacionComercio(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrlValidacionComercio}${id}`);
   }
 
 

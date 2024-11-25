@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { HeaderAdminComponent } from '../../components/header-admin/header-admin.component';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { MatTableModule } from '@angular/material/table';
+import { TableService } from '../../../Services/Table/table.service';
+import { ApiService } from '../../../Services/API/api.service';
+import { forkJoin } from 'rxjs';
 
 interface ValidacionComercio {
   id: string;
@@ -23,12 +26,7 @@ interface ComercioAfiliado {
 @Component({
   selector: 'app-gestionar-afiliaciones',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    CommonModule,
-    HttpClientModule,
-    HeaderAdminComponent,
-    FormsModule
+  imports: [ ReactiveFormsModule, MatTableModule, CommonModule, HeaderAdminComponent,FormsModule
   ],
   templateUrl: './gestionar-afiliaciones.component.html',
   styleUrl: './gestionar-afiliaciones.component.css'
@@ -39,8 +37,11 @@ export class GestionarAfiliacionesComponent implements OnInit {
   usarMock: boolean = true;
   formRechazo: FormGroup;
   solicitudSeleccionada: ValidacionComercio | null = null;
+  displayedColumns: string[] = [];
+  objects = [];
+  columns: string[] = ['cedula_Juridica', 'nombre', 'correo'];  // Definir las columnas a mostrar
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private api_service: ApiService, private table_service: TableService) {
     this.formRechazo = this.fb.group({
       comentario: ['', Validators.required]
     });
@@ -101,40 +102,61 @@ export class GestionarAfiliacionesComponent implements OnInit {
   }
 
   async cargarDatosAPI() {
-    try {
-      // Aquí irían las llamadas a la API real
-      // const responseValidaciones = await this.validacionService.obtenerValidaciones().toPromise();
-      // const responseAfiliacdes = await this.comercioService.obtenerComercios().toPromise();
-      // this.solicitudes = responseValidaciones;
-      // this.comercios = responseAfiliados;
-    } catch (error) {
-      console.error('Error al cargar datos de la API:', error);
-    }
+    
+    this.api_service.getData('ValidacionComercioControllerSQL').subscribe({
+      next: res => {
+        res.filter((validacion:any) => validacion.estado !== "Aprobado");
+        this.getComercios(res);
+      }, error: err => {console.error(err)}
+    })
+  }
+
+  getComercios(validaciones: {cedula_Comercio: string, cedula_Admin: number, estado: string}[]){
+    const comercio_calls = validaciones.map((validacion: any) => this.api_service.getData(`ComercioAfiliado/${validacion.cedula_Comercio}`));
+
+    forkJoin(comercio_calls).subscribe({
+      next: res => {
+        this.table_service.showTable(res, this.columns);  // Mostrar la tabla con los datos y columnas definidos
+        this.objects = this.table_service.objects;
+        this.displayedColumns = this.table_service.displayedColumns;
+      }
+    })
+
+    
   }
 
   obtenerComercio(cedulaComercio: string): ComercioAfiliado | undefined {
     return this.comercios.find(c => c.cedula_Juridica === cedulaComercio);
   }
 
-  async aprobarSolicitud(solicitud: ValidacionComercio) {
-    solicitud.estado = 'aprobado';
-    if (this.usarMock) {
-      // Actualizar localmente
-      this.solicitudes = this.solicitudes.map(s =>
-        s.id === solicitud.id ? solicitud : s
-      );
-    } else {
-      // Llamada a API
-      // await this.validacionService.actualizarValidacion(solicitud).toPromise();
-    }
+  async aprobarSolicitud(cedula_Comercio: string, cedula_Admin: number) {
+    const cuerpo = JSON.stringify({cedula_Comercio, cedula_Admin, estado:"Aprobado"});
+    //const cuerpo_mongo = JSON.stringify({cedulaComercio: cedula_Comercio, comentario: "...", estado:"Aprobado"});
+
+    
+    this.api_service.putData(`ValidacionComercioControllerSQL/${cedula_Comercio}`, cuerpo).subscribe({
+      next: res => {
+        console.log(res)
+      },error: err => { console.error(err) }
+    })
+    
+    /** 
+    this.api_service.putData(`ValidacionComercio/${cedula_Comercio}`, cuerpo_mongo).subscribe({
+      next: res => {
+        console.log(res)
+      },error: err => { console.error(err) }
+    })
+    this.cargarDatosAPI();
+    */
   }
+
 
   seleccionarParaRechazo(solicitud: ValidacionComercio) {
     this.solicitudSeleccionada = solicitud;
     this.formRechazo.reset();
   }
 
-  async rechazarSolicitud() {
+  async rechazarSolicitud(cedula: string) {
     if (this.solicitudSeleccionada && this.formRechazo.valid) {
       this.solicitudSeleccionada.estado = 'rechazado';
       this.solicitudSeleccionada.comentario = this.formRechazo.get('comentario')?.value;

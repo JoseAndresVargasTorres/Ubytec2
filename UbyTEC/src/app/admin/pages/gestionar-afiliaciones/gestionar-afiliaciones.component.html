@@ -26,49 +26,30 @@
           <h3 class="mb-0">Solicitudes Pendientes</h3>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Cédula Jurídica</th>
-                  <th>Nombre Comercio</th>
-                  <th>Correo</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let solicitud of solicitudes">
-                  <td>{{ solicitud.cedulaComercio }}</td>
-                  <td>{{ obtenerComercio(solicitud.cedulaComercio)?.nombre }}</td>
-                  <td>{{ obtenerComercio(solicitud.cedulaComercio)?.correo }}</td>
-                  <td>
-                    <span class="badge"
-                          [ngClass]="{
-                            'bg-warning': solicitud.estado === 'pendiente',
-                            'bg-success': solicitud.estado === 'aprobado',
-                            'bg-danger': solicitud.estado === 'rechazado'
-                          }">
-                      {{ solicitud.estado }}
-                    </span>
-                  </td>
-                  <td>
-                    <button *ngIf="solicitud.estado === 'pendiente'"
-                            class="btn btn-success btn-sm me-2"
-                            (click)="aprobarSolicitud(solicitud)">
-                      <i class="fas fa-check"></i> Aprobar
-                    </button>
-                    <button *ngIf="solicitud.estado === 'pendiente'"
-                            class="btn btn-danger btn-sm"
-                            (click)="seleccionarParaRechazo(solicitud)"
-                            data-bs-toggle="modal"
-                            data-bs-target="#modalRechazo">
-                      <i class="fas fa-times"></i> Rechazar
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="main-container">
+            <mat-table #table [dataSource]="objects">
+              <ng-container *ngFor="let disCol of displayedColumns" matColumnDef="{{disCol}}">
+                <mat-header-cell *matHeaderCellDef>{{disCol}}</mat-header-cell>
+                <mat-cell *matCellDef="let element">{{element[disCol]}}</mat-cell>
+              </ng-container>
+      
+              <ng-container matColumnDef="aprobar">
+                <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                <mat-cell *matCellDef="let element">
+                  <button mat-button class="btn btn-success btn-sm me-2" (click)="aprobarSolicitud(element.cedula_Juridica, element.cedula_Admin)">Aprobar</button>
+                </mat-cell>
+              </ng-container>
+
+              <ng-container matColumnDef="rechazar">
+                <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                <mat-cell *matCellDef="let element">
+                  <button mat-button class="btn btn-danger" (click)="rechazarSolicitud(element.cedula_Juridica)">Rechazar</button>
+                </mat-cell>
+              </ng-container>
+      
+              <mat-header-row *matHeaderRowDef="displayedColumns.concat(['aprobar', 'rechazar']); sticky: true"></mat-header-row>
+              <mat-row *matRowDef="let row; columns: displayedColumns.concat(['aprobar', 'rechazar'])"></mat-row>
+            </mat-table>
           </div>
         </div>
       </div>
@@ -76,36 +57,3 @@
   </div>
 </div>
 
-<!-- Modal de Rechazo -->
-<div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalRechazoLabel">Rechazar Solicitud</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form [formGroup]="formRechazo">
-          <div class="mb-3">
-            <label for="comentario" class="form-label">Razón del rechazo</label>
-            <textarea class="form-control"
-                      id="comentario"
-                      rows="3"
-                      formControlName="comentario"
-                      placeholder="Ingrese el motivo del rechazo"></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button"
-                class="btn btn-danger"
-                [disabled]="!formRechazo.valid"
-                (click)="rechazarSolicitud()"
-                data-bs-dismiss="modal">
-          Confirmar Rechazo
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
