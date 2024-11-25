@@ -24,14 +24,14 @@ namespace UbyApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PedidosClienteItemSQL>>> GetPedidosClientes()
         {
-            return await _context.PedidosClientes.ToListAsync();
+            return await _context.PedidosCliente.ToListAsync();
         }
 
         // GET: api/PedidosClienteControllerSQL/5
         [HttpGet("{id}")]
         public async Task<ActionResult<PedidosClienteItemSQL>> GetPedidosClienteItemSQL(int id)
         {
-            var pedidosClienteItemSQL = await _context.PedidosClientes.FindAsync(id);
+            var pedidosClienteItemSQL = await _context.PedidosCliente.FindAsync(id);
 
             if (pedidosClienteItemSQL == null)
             {
@@ -46,7 +46,7 @@ namespace UbyApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPedidosClienteItemSQL(int id, PedidosClienteItemSQL pedidosClienteItemSQL)
         {
-            if (id != pedidosClienteItemSQL.NumPedido)
+            if (id != pedidosClienteItemSQL.Num_Pedido)
             {
                 return BadRequest();
             }
@@ -77,14 +77,14 @@ namespace UbyApi.Controllers
         [HttpPost]
         public async Task<ActionResult<PedidosClienteItemSQL>> PostPedidosClienteItemSQL(PedidosClienteItemSQL pedidosClienteItemSQL)
         {
-            _context.PedidosClientes.Add(pedidosClienteItemSQL);
+            _context.PedidosCliente.Add(pedidosClienteItemSQL);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (PedidosClienteItemSQLExists(pedidosClienteItemSQL.NumPedido))
+                if (PedidosClienteItemSQLExists(pedidosClienteItemSQL.Num_Pedido))
                 {
                     return Conflict();
                 }
@@ -94,20 +94,20 @@ namespace UbyApi.Controllers
                 }
             }
 
-            return CreatedAtAction("GetPedidosClienteItemSQL", new { id = pedidosClienteItemSQL.NumPedido }, pedidosClienteItemSQL);
+            return CreatedAtAction("GetPedidosClienteItemSQL", new { id = pedidosClienteItemSQL.Num_Pedido }, pedidosClienteItemSQL);
         }
 
         // DELETE: api/PedidosClienteControllerSQL/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePedidosClienteItemSQL(int id)
         {
-            var pedidosClienteItemSQL = await _context.PedidosClientes.FindAsync(id);
+            var pedidosClienteItemSQL = await _context.PedidosCliente.FindAsync(id);
             if (pedidosClienteItemSQL == null)
             {
                 return NotFound();
             }
 
-            _context.PedidosClientes.Remove(pedidosClienteItemSQL);
+            _context.PedidosCliente.Remove(pedidosClienteItemSQL);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -115,7 +115,7 @@ namespace UbyApi.Controllers
 
         private bool PedidosClienteItemSQLExists(int id)
         {
-            return _context.PedidosClientes.Any(e => e.NumPedido == id);
+            return _context.PedidosCliente.Any(e => e.Num_Pedido == id);
         }
     }
 }

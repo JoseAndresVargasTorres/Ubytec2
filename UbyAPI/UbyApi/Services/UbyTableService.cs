@@ -57,4 +57,10 @@ public class UbyTableService
 
     public async Task RemoveValidacionComercioAsync(string id) =>
         await _validacionComercioCollection.DeleteOneAsync(x => x.Id == id);
+
+    public async Task<PedidosClienteItem?> GetPedidoClienteByCedulaAsync(int cedulaCliente)
+{
+    var filter = Builders<PedidosClienteItem>.Filter.Eq(p => p.CedulaCliente, cedulaCliente);
+    return await _pedidosClienteCollection.Find(filter).FirstOrDefaultAsync();
+}
 }

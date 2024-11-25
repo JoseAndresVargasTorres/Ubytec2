@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UbyApi.Models;
 using UbyApi.Services;
-
+using MongoDB.Driver;
 namespace BookStoreApi.Controllers;
 
 [ApiController]
@@ -29,6 +29,23 @@ public class PedidosClienteController : ControllerBase
 
         return pedidoCliente;
     }
+
+    [HttpGet("by-cedula/{cedulaCliente}")]
+public async Task<IActionResult> GetByCedulaCliente(int cedulaCliente)
+{
+    // Busca el documento con el campo "CedulaCliente"
+    var pedidoCliente = await _ubyTableService.GetPedidoClienteByCedulaAsync(cedulaCliente);
+
+    if (pedidoCliente is null)
+    {
+        return NotFound();
+    }
+
+    return Ok(pedidoCliente);
+}
+    
+
+    
 
     [HttpPost]
     public async Task<IActionResult> Post(PedidosClienteItem newPedidoClienteItem)
@@ -69,4 +86,7 @@ public class PedidosClienteController : ControllerBase
 
         return NoContent();
     }
+
+
+    
 }

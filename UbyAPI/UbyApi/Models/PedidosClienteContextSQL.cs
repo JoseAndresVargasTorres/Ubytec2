@@ -7,14 +7,14 @@ public class PedidosClienteContextSQL : DbContext
     {
     }
 
-    public DbSet<PedidosClienteItemSQL> PedidosClientes { get; set; } = null!;
+    public DbSet<PedidosClienteItemSQL> PedidosCliente { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<PedidosClienteItemSQL>()
-            .HasKey(pc => new { pc.NumPedido, pc.CedulaCliente });
+            .HasKey(pc => new { pc.Num_Pedido, pc.Cedula_Cliente });
 
     }
 }
