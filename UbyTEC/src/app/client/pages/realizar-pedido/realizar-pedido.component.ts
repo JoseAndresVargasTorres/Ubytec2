@@ -28,7 +28,7 @@ interface TotalesPedido {
   styleUrls: ['./realizar-pedido.component.css']
 })
 export class RealizarPedidoComponent implements OnInit {
-  private readonly apiUrl = 'http://localhost:5037/api/';
+  private readonly apiUrl = 'https://ubyapi-1016717342490.us-central1.run.app/api/';
   private readonly MOCK_DELAY = 800;
 
   tarjetaForm: FormGroup;
