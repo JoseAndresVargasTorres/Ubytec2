@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UbyApi.Data;
 using UbyApi.Models;
 using UbyApi.Services;
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +28,8 @@ builder.Services.AddDbContext<ReporteConsolidadoContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<UltimaCompraContext>(options =>
     options.UseSqlServer(connectionString));
-
+builder.Services.AddDbContext<RecepcionPedidoContext>(options =>
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddDbContext<ComercioAfiliadoContext>(options =>
     options.UseSqlServer(connectionString)
