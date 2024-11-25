@@ -88,7 +88,6 @@ export class AuthService {
       this.http.get<any>(`${this.apiUrl}/ComercioAfiliado/`).subscribe({
         next: res => {
           const currentBusiness = res.find((comercio: any)=> comercio.cedula_Admin == userData.cedula);
-          console.log(currentBusiness);
           sessionStorage.setItem(this.BUSINESS_KEY, currentBusiness.cedula_Juridica);
         }
       })
@@ -127,8 +126,8 @@ export class AuthService {
   // Obtener la cédula del usuario actual
   getCurrentUserCedula(): number | null {
     const user = this.getCurrentUser();
-    if (user && user.userData) {
-      return user.userData.cedula;
+    if (user && user.cedula) {
+      return user.cedula;
     }
     return null;
   }
