@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { TableService } from '../../../Services/Table/table.service';
 import { ApiService } from '../../../Services/API/api.service';
-import { forkJoin } from 'rxjs';
+import { concat, forkJoin } from 'rxjs';
 
 interface ValidacionComercio {
   id: string;
@@ -34,7 +34,7 @@ interface ComercioAfiliado {
 export class GestionarAfiliacionesComponent implements OnInit {
   solicitudes: ValidacionComercio[] = [];
   comercios: ComercioAfiliado[] = [];
-  usarMock: boolean = true;
+  usarMock: boolean = false;
   formRechazo: FormGroup;
   solicitudSeleccionada: ValidacionComercio | null = null;
   displayedColumns: string[] = [];
@@ -155,23 +155,17 @@ export class GestionarAfiliacionesComponent implements OnInit {
     this.solicitudSeleccionada = solicitud;
     this.formRechazo.reset();
   }
-
+  
   async rechazarSolicitud(cedula: string) {
-    if (this.solicitudSeleccionada && this.formRechazo.valid) {
-      this.solicitudSeleccionada.estado = 'rechazado';
-      this.solicitudSeleccionada.comentario = this.formRechazo.get('comentario')?.value;
+    const api1 = this.api_service.deleteData(`ValidacionComercioControllerSQL/${cedula}`);
+    const api2 = this.api_service.deleteData(`ComercioAfiliado/${cedula}`);
+    const api3 = this.api_service.deleteData(`DireccionComercio/${cedula}`);
 
-      if (this.usarMock) {
-        // Actualizar localmente
-        this.solicitudes = this.solicitudes.map(s =>
-          s.id === this.solicitudSeleccionada?.id ? this.solicitudSeleccionada : s
-        );
-      } else {
-        // Llamada a API
-        // await this.validacionService.actualizarValidacion(this.solicitudSeleccionada).toPromise();
-      }
-
-      this.solicitudSeleccionada = null;
-    }
+    
+    concat([api1, api2, api3]).subscribe({
+      next: res => {
+        console.log(res);
+      }, error: err => {console.error(err)}
+    })
   }
 }
