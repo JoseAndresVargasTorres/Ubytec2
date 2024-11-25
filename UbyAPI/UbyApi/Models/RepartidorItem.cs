@@ -15,6 +15,9 @@ public class RepartidorItem
     public required string Nombre { get; set; }
 
    
+    [Required] // Campo obligatorio
+    [StringLength(200)] // Define la longitud máxima como 50
+    public required string Password { get; set; }
 
     [Required] // Campo obligatorio
     [StringLength(50)] // Define la longitud máxima como 50
