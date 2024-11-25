@@ -74,6 +74,7 @@ CREATE TABLE ProductosPedidos (
 CREATE TABLE PedidosCliente (
     num_pedido INT,
     cedula_cliente INT,
+    feedback NVARCHAR(600),
     PRIMARY KEY (num_pedido,cedula_cliente),
     FOREIGN KEY (num_pedido) REFERENCES Pedido(num_pedido),
     FOREIGN KEY (cedula_cliente) REFERENCES Cliente(cedula)
